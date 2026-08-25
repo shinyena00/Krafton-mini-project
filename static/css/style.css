@@ -1,0 +1,116 @@
+/* 전체 기본 설정 */
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    font-family: "Noto Sans KR", "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #222;
+    background-color: #fff;
+}
+
+
+/* 제목 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 0;
+    color: #222;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 32px;
+}
+
+h2 {
+    font-size: 26px;
+}
+
+h3 {
+    font-size: 20px;
+}
+
+
+/* 본문 */
+p {
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+
+/* 링크 */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+
+/* 입력 요소 */
+input,
+textarea,
+select,
+button {
+    font: inherit;
+}
+
+
+/* 이미지 */
+img {
+    max-width: 100%;
+    display: block;
+}
+
+
+/* 기본 콘텐츠 영역 */
+main {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+
+/* 작은 화면 */
+@media (max-width: 768px) {
+    body {
+        font-size: 15px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    h2 {
+        font-size: 23px;
+    }
+
+    h3 {
+        font-size: 19px;
+    }
+
+    main {
+        padding: 24px 16px;
+    }
+}
+
+/*상단바 */
+
+.topbar {
+    width: 100%;
+    height: 50px;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
