@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}
+회원가입
+{% endblock %}
+
+{% block content %}
+<h1>회원가입</h1>
+<p class="signup">기본 정보를 입력해주세요</p>
+
+<form>
+    <div class="rounded">
+        <label>닉네임</label>
+        <input type="text" class="form-control">
+    </div>
+    <div class="rounded">
+        <label>아이디</label>
+        <input type="text" class="form-control">
+    </div>
+    <div class="rounded">
+        <label>비밀번호</label>
+        <input type="text" class="form-control">
+        <p class="signup">영문 숫자 포함 8자 이상</p>
+    </div>
+    <div class="rounded">
+        <label>비밀번호 확인</label>
+        <input type="text" class="form-control">
+    </div>
+</form>
+
+<hr class="mb-4">
+
+<div class="border rounded p-3">
+    가입 완료 시 기본 10P가 지급됩니다.
+</div>
+
+<div class="border rounded p-3">
+    가입 완료 시 기본 10P가 지급됩니다.
+</div>
+
+
+{% endblock %}
+
+
+{% block head %}
+
+<style>
+    .gray{
+        color:gray;
+    }
+</style>
+
+{% endblock %}
