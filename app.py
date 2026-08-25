@@ -11,7 +11,7 @@
     "errand_id": "errand_5892",          // 문자열 또는 숫자
     "title": "편의점에서 감기약 좀 사다주세요", // 문자열
     "image": "https://example.com/img.jpg", // 문자열 (이미지 URL 경로)
-    "status": "MATCHED",                 // 문자열 (상태값: REQUESTED, MATCHED, DONE)
+    "status": "OPEN",                 // 문자열 (상태값: OPEN, ACCEPTEC, WAITING_CONFIRM, COMPLETED, CANCELED)
     "time": "2026-08-25T15:30:00",       // 문자열 (날짜/시간 ISO 표준)
     "location": "경기도 용인시 수지구",  // 문자열 (주소)
     "reward": 500,                     // 숫자 (보수 금액)
@@ -19,3 +19,5 @@
     "accepter_id": "user_2048"             // 문자열 (수락한 유저 ID, 오타 수정)
   }
 }
+
+
