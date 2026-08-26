@@ -2,53 +2,145 @@
 
 {% block title %}심부름 수정 - 정글 도움 교환소{% endblock %}
 
-{% block content %}
-<div class="container my-4" style="max-width: 700px;">
-    <div class="card shadow-sm border-0 p-4">
-        <h2 class="fw-bold mb-4">심부름 수정하기</h2>
+{% block header %}
+<!-- 피그마 상단 네비게이션 헤더 -->
+<header class="bg-white border-bottom py-2">
+    <div class="container-fluid px-4 d-flex align-items-center justify-content-between">
+        <!-- 로고 -->
+        <div class="d-flex align-items-center gap-3">
+            <a href="/" class="d-inline-block rounded bg-secondary-subtle border"
+                style="width: 110px; height: 32px;"></a>
+        </div>
 
-        <form id="edit-form">
-            <!-- 제목 -->
-            <div class="mb-3">
-                <label for="title" class="form-label fw-medium">심부름 제목</label>
-                <input type="text" class="form-control" id="title" name="title" value="{{ errand.title }}" required>
-            </div>
+        <!-- 중앙 검색창 -->
+        <div class="flex-grow-1 mx-4" style="max-width: 700px;">
+            <input type="text" class="form-control form-control-sm bg-light border-0 py-2 px-3 rounded" placeholder="검색"
+                style="font-size: 13px;">
+        </div>
 
-            <!-- 보수 포인트 -->
-            <div class="mb-3">
-                <label for="reward" class="form-label fw-medium">보상 포인트 (P)</label>
-                <input type="number" class="form-control" id="reward" name="reward" value="{{ errand.reward }}" min="0"
-                    required>
+        <!-- 우측 보유 포인트 / 올리기 / 프로필 -->
+        <div class="d-flex align-items-center gap-2">
+            {% if user %}
+            <span class="badge bg-white text-dark border px-3 py-2 fw-normal" style="font-size: 13px;">
+                보유 <strong class="fw-bold">{{ user.point }}P</strong>
+            </span>
+            <a href="/errands/create" class="btn btn-outline-secondary btn-sm px-3 py-1 bg-white text-dark border"
+                style="font-size: 13px;">
+                올리기
+            </a>
+            <div class="d-flex align-items-center gap-2 ms-2">
+                <div class="rounded-circle bg-secondary-subtle border" style="width: 34px; height: 34px;"></div>
+                <span class="fw-medium text-dark" style="font-size: 13px;">{{ user.nickname }}</span>
             </div>
-
-            <!-- 위치 -->
-            <div class="mb-3">
-                <label for="location" class="form-label fw-medium">위치 / 주소</label>
-                <input type="text" class="form-control" id="location" name="location" value="{{ errand.location }}"
-                    required>
-            </div>
-
-            <!-- 일시 -->
-            <div class="mb-3">
-                <label for="time" class="form-label fw-medium">희망 일시</label>
-                <input type="datetime-local" class="form-control" id="time" name="time" value="{{ errand.time }}"
-                    required>
-            </div>
-
-            <!-- 이미지 URL -->
-            <div class="mb-4">
-                <label for="image" class="form-label fw-medium">이미지 URL</label>
-                <input type="url" class="form-control" id="image" name="image" value="{{ errand.image }}"
-                    placeholder="https://example.com/image.jpg">
-            </div>
-
-            <!-- 버튼 영역 -->
-            <div class="d-flex gap-2 justify-content-end">
-                <a href="/errands/{{ errand.errand_id }}" class="btn btn-outline-secondary">취소</a>
-                <button type="submit" class="btn btn-primary px-4">수정 완료</button>
-            </div>
-        </form>
+            {% else %}
+            <a href="/login" class="btn btn-sm btn-outline-secondary px-3" style="font-size: 13px;">로그인</a>
+            <a href="/signup" class="btn btn-sm btn-dark px-3" style="font-size: 13px;">회원가입</a>
+            {% endif %}
+        </div>
     </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 1080px;">
+    <!-- 타이틀 -->
+    <h4 class="fw-bold mb-4 text-dark">심부름 수정</h4>
+
+    <form id="form-edit-errand">
+        <div class="row g-5">
+            <!-- [좌측 7열] 텍스트 입력 폼 영역 -->
+            <div class="col-lg-7">
+                <!-- 1. 제목 -->
+                <div class="mb-4">
+                    <label for="title" class="form-label small fw-bold text-secondary mb-2">제목</label>
+                    <input type="text" class="form-control bg-light border-0 p-3 rounded-2" id="title" name="title"
+                        value="{{ errand.title }}" required style="font-size: 14px;">
+                </div>
+
+                <!-- 2. 상세 설명 -->
+                <div class="mb-4">
+                    <label for="description" class="form-label small fw-bold text-secondary mb-2">상세 설명</label>
+                    <textarea class="form-control bg-light border-0 p-3 rounded-2" id="description" name="description"
+                        rows="5" required
+                        style="font-size: 14px;">{{ errand.description | default('', true) }}</textarea>
+                </div>
+
+                <!-- 3. 장소 -->
+                <div class="mb-4">
+                    <label for="location" class="form-label small fw-bold text-secondary mb-2">장소</label>
+                    <input type="text" class="form-control bg-light border-0 p-3 rounded-2" id="location"
+                        name="location" value="{{ errand.location }}" required style="font-size: 14px;">
+                </div>
+
+                <!-- 4. 기한 및 사례 포인트 2열 배치 -->
+                <div class="row g-3 mb-2">
+                    <div class="col-md-6">
+                        <label for="time" class="form-label small fw-bold text-secondary mb-2">기한</label>
+                        <input type="text" class="form-control bg-light border-0 p-3 rounded-2" id="time" name="time"
+                            value="{{ errand.time }}" placeholder="예: 20분 이내" style="font-size: 14px;">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="reward" class="form-label small fw-bold text-secondary mb-2">사례 포인트</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control bg-light border-0 p-3 rounded-start-2" id="reward"
+                                name="reward" value="{{ errand.reward }}" required style="font-size: 14px;">
+                            <span class="input-group-text bg-light border-0 fw-bold px-3 text-dark">P</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. 하단 헬퍼 텍스트 및 무기한 체크박스 -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-check pt-1">
+                            <input class="form-check-input" type="checkbox" id="noLimit">
+                            <label class="form-check-label small text-secondary" for="noLimit" style="font-size: 12px;">
+                                무기한
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-secondary" style="font-size: 11px; line-height: 1.4;">
+                            <div>현재 보유 포인트: {{ user.point if user else 0 }}P</div>
+                            <div>보유한 포인트 안에서 자유롭게 설정할 수 있습니다</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [우측 5열] 이미지 업로드 & 수정 완료 액션 버튼 -->
+            <div class="col-lg-5 ps-lg-4">
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-secondary mb-2">이미지 (선택)</label>
+                    <!-- 점선 테두리 업로드 박스 -->
+                    <div class="border border-secondary-subtle rounded-3 bg-light d-flex flex-column align-items-center justify-content-center position-relative"
+                        style="height: 240px; border-style: dashed !important; cursor: pointer;" id="image-upload-box">
+                        {% if errand.image %}
+                        <img src="{{ errand.image }}" id="image-preview" class="w-100 h-100 rounded-3"
+                            style="object-fit: cover;" alt="미리보기">
+                        {% else %}
+                        <img src="" id="image-preview" class="w-100 h-100 rounded-3 d-none" style="object-fit: cover;"
+                            alt="미리보기">
+                        <span class="text-secondary small fw-medium" id="upload-placeholder">업로드</span>
+                        {% endif %}
+                        <input type="file" id="image-input" class="d-none" accept="image/*">
+                    </div>
+                </div>
+
+                <!-- 액션 버튼 (수정 완료 & 취소) -->
+                <div class="d-flex flex-column gap-2">
+                    <button type="submit" class="btn btn-dark w-100 py-3 fw-medium rounded-2"
+                        style="background-color: #222; font-size: 14px;">
+                        수정하기
+                    </button>
+                    <a href="/errands/{{ errand.errand_id }}"
+                        class="btn btn-outline-secondary w-100 py-2 fw-medium rounded-2" style="font-size: 14px;">
+                        취소
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 {% endblock %}
 
@@ -57,24 +149,52 @@
     $(document).ready(function () {
         const errandId = "{{ errand.errand_id }}";
 
-        $("#edit-form").on("submit", function (e) {
+        // 1. 이미지 박스 클릭 시 파일 탐색기 열기
+        $("#image-upload-box").click(function () {
+            $("#image-input").click();
+        });
+
+        // 2. 파일 선택 시 미리보기 처리
+        $("#image-input").change(function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    $("#image-preview").attr("src", event.target.result).removeClass("d-none");
+                    $("#upload-placeholder").addClass("d-none");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 3. 무기한 체크박스 토글 처리
+        $("#noLimit").change(function () {
+            if ($(this).is(":checked")) {
+                $("#time").val("무기한").prop("readonly", true);
+            } else {
+                $("#time").val("").prop("readonly", false);
+            }
+        });
+
+        // 4. 수정 폼 제출 (AJAX PUT 통신)
+        $("#form-edit-errand").submit(function (e) {
             e.preventDefault();
 
-            const formData = {
+            const updateData = {
                 title: $("#title").val(),
-                reward: parseInt($("#reward").val()),
+                description: $("#description").val(),
                 location: $("#location").val(),
                 time: $("#time").val(),
-                image: $("#image").val()
+                reward: parseInt($("#reward").val(), 10)
             };
 
             $.ajax({
                 url: `/api/errands/${errandId}`,
                 type: "PUT",
                 contentType: "application/json",
-                data: JSON.stringify(formData),
+                data: JSON.stringify(updateData),
                 success: function (res) {
-                    alert("심부름 정보가 성공적으로 수정되었습니다.");
+                    alert("심부름 정보가 성공적으로 수정되었습니다!");
                     window.location.href = `/errands/${errandId}`;
                 },
                 error: function (err) {
