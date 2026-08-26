@@ -3,53 +3,137 @@
 {% block title %}정글 도움 교환소{% endblock %}
 
 {% block header %}
-<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-    <div class="container">
-        <a class="navbar-brand" href="/">정글 도움 교환소</a>
-    </div>
-    <div>
-        <a href="" class>로그인</a>
-        <a href="" class>회원가입</a>
+<nav class="navbar px-4">
+    <a class="navbar-brand fw-bold" href="/">정글 도움 교환소</a>
+    <input type="text" class="form-control search-input mx-3" placeholder="검색">
+    <div class="nav-auth d-flex align-items-center gap-3 ms-auto">
+        <a href="{{ url_for('auth.login') }}">로그인</a>
+        <a href="{{ url_for('auth.signup') }}">회원가입</a>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-{% set detail_url = url_for('detail') %}
-{% set new_errand_url = url_for('new_errand') %}
+
 <div class="col-10">
-    <div class="container py-5">
-        <h1 class="mb-3">환영합니다</h1>
-        <p class="text-muted">정글 도움 교환소에 오신 것을 환영합니다.</p>
-    </div>
-
-
-
-    <div>
-        <div class="card-grid">
-            {% for errand in errands %}
-            <div class="card-box" onclick="location.href='{{ detail_url }}';">
-                <div class="card">
-                    <h3>{{errand.title}}</h3>
-                    <p> 장소 {{errand.location}}</p>
-                    <p> 기한 {{errand.time}}</p>
-                    <p> 사례 {{errand.reward}}</p>
-                    <p>{{errand.register_id}}</p>
-                    <p>{{errand.accepter_id}}</p>
-                    <p class="status-badge {% if errand.status == 'OPEN'%} status-pending{%else%}
-                    status-done{% endif %}">
-                        {{errand.status}}
-                    </p>
-                </div>
-            </div>
-            {% endfor %}
+    <div class="topcontent">
+        <h1 class="mb-3">최신 등록</h1>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                정렬
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><button class="dropdown-item" type="button">최신순</button></li>
+                <li><button class="dropdown-item" type="button">포인트 높은순</button></li>
+                <li><button class="dropdown-item" type="button">마감 임박순</button></li>
+            </ul>
         </div>
     </div>
-    <div>
-        <button class="enroll_button" type="button" onclick="location.href='{{ new_errand_url }}';">등록하기</button>
+
+    <div class="card-grid">
+        {% for errand in errands %}
+        <div class="card-box" onclick="location.href='{{ url_for('detail') }}';">
+            <div class="card-thumb"></div>
+            <h3>{{ errand.title }}</h3>
+            <p><span class="label">장소</span>{{ errand.location }}</p>
+            <p><span class="label">기한</span>{{ errand.time }}</p>
+            <p><span class="label">사례</span>{{ errand.reward }}P</p>
+            <p class="status-badge {% if errand.status == 'OPEN' %}status-pending{% else %}status-done{% endif %}">
+                {% if errand.status == 'OPEN' %}수락 대기{% elif errand.status == 'CANCELED' %}취소{% else %}완료{% endif %}
+            </p>
+        </div>
+        {% endfor %}
     </div>
 </div>
 
+<button type="button" class="enroll_button" onclick="location.href='{{ url_for('new_errand') }}';">올리기</button>
 
+{% endblock %}
+
+{% block head %}
+
+<style>
+    nav.navbar {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    nav.navbar .navbar-brand {
+        flex-shrink: 0;
+    }
+
+    .search-input {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 480px;
+    }
+
+    .nav-auth {
+        flex-shrink: 0;
+    }
+
+    .topcontent {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .card-thumb {
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        background-color: #f4f4f4;
+        background-image:
+            linear-gradient(to top right, transparent calc(50% - 1px), #ccc, transparent calc(50% + 1px)),
+            linear-gradient(to top left, transparent calc(50% - 1px), #ccc, transparent calc(50% + 1px));
+    }
+
+    .card-box {
+        border: 1px solid #e5e5e5;
+        border-radius: 12px;
+        padding: 16px;
+        cursor: pointer;
+        transition: box-shadow .15s ease;
+    }
+
+    .card-box:hover {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+    }
+
+    .card-box p {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 6px;
+        font-size: 14px;
+    }
+
+    .card-box .label {
+        color: #999;
+        width: 32px;
+        flex-shrink: 0;
+    }
+
+    .status-badge {
+        margin: 10px 0 0;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background-color: #f5f5f5;
+        color: #666;
+        font-size: 13px;
+    }
+
+    .status-badge.status-done {
+        background-color: #eaf7ec;
+        color: #2e9e46;
+    }
+
+    .status-badge.status-canceled {
+        background-color: #fdecec;
+        color: #d9534f;
+    }
+</style>
 
 {% endblock %}

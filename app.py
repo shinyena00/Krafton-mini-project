@@ -9,12 +9,13 @@ app = Flask(__name__)
 app.register_blueprint(auth)
 
 client=MongoClient('localhost',27017)
-db=client.errands
+db = client["jungle_errand"]
+errands = db["errands"]
 
 @app.route('/')
 def home():
-    errands=db.errands.find({'status':'OPEN'})
-    return render_template('index.html',errands=errands)
+    errand_list = errands.find({'status':'OPEN'})
+    return render_template('index.html',errands=errand_list)
 
 @app.route('/new_errand')
 def new_errand():
@@ -49,12 +50,12 @@ def post_errand():
     period_receive=request.form['period_give']
     point_receive=request.form['point_give']
     errand={'title':title_receive,'location':place_receive, 'time':period_receive ,'reward':point_receive,'status':'OPEN'}
-    db.errands.insert_one(errand)
+    errands.insert_one(errand)
     return jsonify({'result': 'success'})
 
 @app.route('/errand',methods=['GET'])
 def search_errand():
-    result=list(db.errands.find({},{'_id':0}))
+    result=list(errands.find({},{'_id':0}))
     return jsonify({'point':result})
 
 # @app.route('/login')
