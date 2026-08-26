@@ -21,11 +21,13 @@
     </form>
 
 
-    <div class="border rounded join p-3 mb-4">
+    <div class="border rounded join p-3 mb-4" style="text-align:center;">
         로그인하기
     </div>
 
-    <p class="signup" style="font-size: 15px; text-align:center;">회원가입</p>
+    <p class="signup" style="font-size: 15px; text-align:center;">
+        <a href="{{url_for('signup')}}"">회원가입</a>
+    </p>
 
 </div>
 
@@ -57,5 +59,10 @@
 
 
 </style>
+
+{% endblock %}
+
+{% block scripts %}
+
 
 {% endblock %}
