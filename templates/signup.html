@@ -56,7 +56,7 @@
         <button type="submit" class="joinsubmit mb-4">가입하기</button>
     </form>
     <p class="signup" style="font-size: 15px; text-align:center;">
-        <a href="{{url_for('signup')}}"">이미 계정이 있나요?</a>
+        <a href="{{ url_for('auth.login') }}">이미 계정이 있나요?</a>
     </p>
 
 </div>
@@ -190,7 +190,7 @@
     let useridChecked = false;
 
     function useridCheck() {
-g
+
         let userid = $("#userid").val();
 
         if(userid.trim() === ""){
@@ -228,7 +228,6 @@ g
             alert("아이디 중복확인을 해주세요.")
         }
     })
-
 
 
 </script>
