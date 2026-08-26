@@ -14,6 +14,10 @@
 </nav>
 {% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/new_errand.css') }}">
+{% endblock %}
+
 {% block content %}
 
 <div class="new_content col-5">
