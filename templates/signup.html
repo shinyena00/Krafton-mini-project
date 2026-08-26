@@ -6,7 +6,8 @@
 
 {% block content %}
 
-<div class="signup-page">
+<!-- row때문에 확인을 위해 col-10사용 -->
+<div class="col-10 signup-page ">
     <div class="userinfo">
         <h1>회원가입</h1>
         <p class="signup mb-4">기본 정보를 입력해주세요</p>
@@ -124,12 +125,14 @@
         border: 1px solid cornflowerblue;
     }
 
-    .nickname, .userid {
+    .nickname,
+    .userid {
         display: flex;
         gap: 10px;
     }
 
-    .nickname button, .userid button {
+    .nickname button,
+    .userid button {
         width: 90px;
         border: 1px solid #ddd;
         border-radius: 8px;
@@ -159,7 +162,7 @@
 
         let nickname = $("#user_nickname").val();
 
-        if(nickname.trim() === ""){
+        if (nickname.trim() === "") {
             alert("닉네임을 입력해주세요.")
             return
         }
@@ -193,7 +196,7 @@
 
         let userid = $("#userid").val();
 
-        if(userid.trim() === ""){
+        if (userid.trim() === "") {
             alert("아이디를 입력해주세요.")
             return
         }

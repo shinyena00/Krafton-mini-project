@@ -32,7 +32,7 @@
 
     <div class="card-grid">
         {% for errand in errands %}
-        <div class="card-box" onclick="location.href='{{ url_for('detail') }}';">
+        <div class="card-box" onclick="location.href='{{ url_for('errand_detail',errand_id=errand._id) }}';">
             <div class="card-thumb"></div>
             <h3>{{ errand.title }}</h3>
             <p><span class="label">장소</span>{{ errand.location }}</p>
@@ -135,5 +135,10 @@
         color: #d9534f;
     }
 </style>
+
+{% endblock %}
+
+{% block scripts %}
+
 
 {% endblock %}

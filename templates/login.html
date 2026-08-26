@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block content %}
-
-<div class="signup-page">
+<!-- row때문에 확인을 위해 col-10을 사용 -->
+<div class="col-10 signup-page ">
     <h1 style="text-align:center; margin-bottom:50px;font-size:60px">로그인</h1>
 
     <form>
@@ -21,7 +21,7 @@
 
         <button type="button" onclick="loginCheck()" class="joinsubmit mb-4">로그인하기</button>
 
-        
+
     </form>
 
     <p class="signup" style="font-size: 15px; text-align:center;">
@@ -65,8 +65,6 @@
         border-radius: 8px;
         text-align: center;
     }
-
-
 </style>
 
 {% endblock %}
@@ -85,10 +83,10 @@
                 if (response.success == false) { alert("아이디/비밀번호가 틀렸습니다.") }
                 else {
                     alert("로그인 성공\n 확인 버튼을 누르면 메인페이지로 이동합니다.")
-                    location.href="/";
+                    location.href = "/";
                 }
             }
         })
     } </script>
 
-            {% endblock %}
+{% endblock %}

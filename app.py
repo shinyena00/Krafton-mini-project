@@ -50,25 +50,28 @@ def post_errand():
     period_receive=request.form['period_give']
     point_receive=request.form['point_give']
     errand={'title':title_receive,'location':place_receive, 'time':period_receive ,'reward':point_receive,'status':'OPEN'}
-    errands.insert_one(errand)
-    return jsonify({'result': 'success'})
+    result=errands.insert_one(errand)
+    return jsonify({'result': 'success','errand_id': str(result.inserted_id)})
 
 @app.route('/errand',methods=['GET'])
 def search_errand():
     result=list(errands.find({},{'_id':0}))
     return jsonify({'point':result})
 
-# @app.route('/login')
-# def login():
-#     return render_template('login.html') 
+@app.route('/login')
+def login():
+    return render_template('login.html') 
 
-# @app.route('/signup')
-# def signup():
-#     return render_template('signup.html') 
+@app.route('/signup')
+def signup():
+    return render_template('signup.html') 
 
-@app.route('/detail')
-def detail():
-    return render_template('detail.html')
+#동적라우팅
+@app.route('/errand_detail/<errand_id>')
+def errand_detail(errand_id):
+    errand = db.errands.find_one({'_id': ObjectId(errand_id)})
+    return render_template('errand_detail.html',errand=errand)
+
 
 # @app.route('/mypage')
 # def mypage():

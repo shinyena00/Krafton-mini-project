@@ -20,7 +20,7 @@
 
         <!-- 우측 보유 포인트 / 올리기 / 프로필 -->
         <div class="d-flex align-items-center gap-2">
-            {% if user %}
+            {% if errand.user %}
             <span class="badge bg-white text-dark border px-3 py-2 fw-normal" style="font-size: 13px;">
                 보유 <strong class="fw-bold">{{ user.point }}P</strong>
             </span>
@@ -42,7 +42,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-5 py-4" style="max-width: 1350px;">
+<div class="col-10 container-fluid px-5 py-4" style="max-width: 1350px;">
     <!-- 상단 목록으로 링크 -->
     <div class="mb-3">
         <a href="/" class="text-secondary text-decoration-none small fw-medium d-inline-flex align-items-center gap-1">
