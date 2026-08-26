@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import os
 from bson.objectid import ObjectId
 
-auth_bp = Blueprint("auth", __name__)
+auth = Blueprint("auth", __name__)
 
 load_dotenv()
 SECRET_KEY = os.environ["JWT_SECRET_KEY"]
@@ -16,12 +16,12 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["jungle_errand"]
 users = db["users"]
 
-@auth_bp.route("/")
+@auth.route("/")
 def index():
     return render_template("index.html")
 
 
-@auth_bp.route("/login", methods=["GET", "POST"])
+@auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         loginid = request.form["loginid"]
@@ -61,7 +61,7 @@ def login():
 
     return render_template("login.html")
 
-@auth_bp.route("/check-nickname", methods=["POST"])
+@auth.route("/check-nickname", methods=["POST"])
 def check_nickname():
     nickname = request.form["nickname"]
 
@@ -72,7 +72,7 @@ def check_nickname():
     else:
         return {"available" : True}
 
-@auth_bp.route("/check-id", methods=["POST"])
+@auth.route("/check-id", methods=["POST"])
 def check_id():
     userid = request.form["userid"]
 
@@ -84,7 +84,7 @@ def check_id():
         return {"available" : True}
 
 
-@auth_bp.route("/signup", methods=["GET", "POST"])
+@auth.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
         userid = request.form["user_id"]
@@ -142,7 +142,7 @@ def get_current_user():
     except jwt.InvalidTokenError:
         return None
 
-@auth_bp.route("/mypage")
+@auth.route("/mypage")
 def mypage():
     user = get_current_user()
 
@@ -159,7 +159,7 @@ def mypage():
         user=user
     )
 
-@auth_bp.route("/logout")
+@auth.route("/logout")
 def logout():
     response = redirect(url_for("auth.login"))
     response.delete_cookie("token")
