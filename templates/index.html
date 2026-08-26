@@ -7,17 +7,47 @@
     <div class="container">
         <a class="navbar-brand" href="/">정글 도움 교환소</a>
     </div>
+    <div>
+        <a href="" class>로그인</a>
+        <a href="" class>회원가입</a>
+    </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <h1 class="mb-3">환영합니다</h1>
-    <p class="text-muted">정글 도움 교환소에 오신 것을 환영합니다.</p>
-    <div class="d-flex gap-2">
-        <a href="/signup" class="btn btn-primary">회원가입</a>
-        <a href="/login" class="btn btn-outline-primary">로그인</a>
-        <a href="/mypage" class="btn btn-outline-secondary">마이페이지 (임시)</a>
+<div class="col-10">
+    <div class="container py-5">
+        <h1 class="mb-3">환영합니다</h1>
+        <p class="text-muted">정글 도움 교환소에 오신 것을 환영합니다.</p>
+    </div>
+
+
+
+    <div>
+        <div class="card-grid">
+            {% for errand in errands %}
+            <div class="card-box" onclick="location.href='{{url_for('detail')}}';">
+                <div class="card">
+                    <h3>{{errand.title}}</h3>
+                    <p> 장소 {{errand.location}}</p>
+                    <p> 기한 {{errand.time}}</p>
+                    <p> 사례 {{errand.reward}}</p>
+                    <p>{{errand.register_id}}</p>
+                    <p>{{errand.accepter_id}}</p>
+                    <p class="status-badge {% if errand.status == 'OPEN'%} status-pending{%else%}
+                    status-done{% endif %}">
+                        {{errand.status}}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div>
+        <button class="enroll_button" type="button" onclick="location.href='{{url_for('new_errand')}}'">등록하기</button>
     </div>
 </div>
+
+
+
 {% endblock %}
