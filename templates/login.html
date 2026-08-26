@@ -77,7 +77,7 @@
 
     function loginCheck() {
 
-        let loginid = $(" #loginid").val(); let loginpassword = $("#loginpassword").val(); $.ajax({
+        let loginid = $("#loginid").val(); let loginpassword = $("#loginpassword").val(); $.ajax({
             type: "POST",
             url: "/login", data: { loginid: loginid, loginpassword: loginpassword }, success: function (response) {
                 if (response.success == false) { alert("아이디/비밀번호가 틀렸습니다.") }
