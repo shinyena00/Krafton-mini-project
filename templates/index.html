@@ -15,6 +15,8 @@
 {% endblock %}
 
 {% block content %}
+{% set detail_url = url_for('detail') %}
+{% set new_errand_url = url_for('new_errand') %}
 <div class="col-10">
     <div class="container py-5">
         <h1 class="mb-3">환영합니다</h1>
@@ -26,7 +28,7 @@
     <div>
         <div class="card-grid">
             {% for errand in errands %}
-            <div class="card-box" onclick="location.href='{{url_for('detail')}}';">
+            <div class="card-box" onclick="location.href='{{ detail_url }}';">
                 <div class="card">
                     <h3>{{errand.title}}</h3>
                     <p> 장소 {{errand.location}}</p>
@@ -44,7 +46,7 @@
         </div>
     </div>
     <div>
-        <button class="enroll_button" type="button" onclick="location.href='{{url_for('new_errand')}}'">등록하기</button>
+        <button class="enroll_button" type="button" onclick="location.href='{{ new_errand_url }}';">등록하기</button>
     </div>
 </div>
 
