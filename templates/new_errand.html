@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %} 정글 도움 교환소 등록{% endblock %}
+
+{% block header %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <div class="container">
+        <a class="navbar-brand" href="/">정글 도움 교환소</a>
+    </div>
+    <div>
+        <a href="" class>로그인</a>
+        <a href="" class>회원가입</a>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<div class="new_content col-5">
+    <div>
+        <h1>새 글 등록</h1>
+    </div>
+    <div>
+        <div>
+            <label for="title">제목</label>
+            <input id="title" placeholder="편의점에서 생수 2병 부탁해요" />
+        </div>
+        <div>
+            <label for="description">상세 설명</label>
+            <textarea id="description" placeholder="정글 캠퍼스 1층  편의점에서 생수(500ml) 2병을 구매해 로비 테이블에 올려주세요" rows="6"
+                cols="22"></textarea>
+        </div>
+        <div>
+            <label for="place">장소</label>
+            <input id="place" placeholder="정글 캠퍼스 1층  편의점에서 생수(500ml) 2병을 구매해 로비 테이블에 올려주세요" />
+        </div>
+        <div class="period_reward_box">
+            <div class="field_group">
+                <label for="period">기한</label>
+                <input id="period" placeholder="20분 이내" />
+                <input type="checkbox">
+                <p>무기한</p>
+            </div>
+            <div class="field_group">
+                <label for="point">사례포인트</label>
+                <input id="point" placeholder="2" />
+                <p>P</p>
+                <p>현재 보유 포인트:10P</p>
+                <p>보유한 포인트에서 자유롭게 설정하여 사용할 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="upload_area col-5">
+    <label for="image" class="upload_box">이미지</label>
+    <input id="image" type="file" accept="image/*" hidden>
+    <button class="submit_button" onclick="HandleRegister()">등록하기</button>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function HandleRegister() {
+        let title = $("#title").val();
+        let description = $("#description").val();
+        let place = $("#place").val();
+        let period = $("#period").val();
+        let point = $("#point").val();
+
+        Posting(title, description, place, period, point)
+    }
+
+    function Posting(title, description, place, period, point) {
+        $.ajax({
+            type: "POST",
+            url: "/errand",
+            data: {
+                title_give: title, description_give: description, place_give: place, period_give: period, point_give: point,
+            },
+            success: function (responese) {
+                if (responese["result"] == "success") {
+                    Swal.fire({
+                        title: "포스팅 성공",
+                        confirmButtonText: "확인",
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        titile: "포스팅실패",
+                        confirmButtonText: "확인"
+                    });
+                }
+            }
+        })
+    }
+
+</script>
+{% endblock %}

@@ -16,11 +16,6 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["jungle_errand"]
 users = db["users"]
 
-@auth.route("/")
-def index():
-    return render_template("index.html")
-
-
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
