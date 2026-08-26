@@ -1,5 +1,4 @@
 from flask import render_template, request, redirect, url_for, make_response, jsonify, Blueprint
-from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from datetime import datetime, timedelta, timezone
@@ -7,14 +6,12 @@ from dotenv import load_dotenv
 import os
 from bson.objectid import ObjectId
 
+from db import users_collection
+
 auth = Blueprint("auth", __name__)
 
 load_dotenv()
 SECRET_KEY = os.environ["JWT_SECRET_KEY"]
-
-client = MongoClient("mongodb://localhost:27017/")
-db = client["jungle_errand"]
-users = db["users"]
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
@@ -22,7 +19,7 @@ def login():
         loginid = request.form["loginid"]
         loginpassword = request.form["loginpassword"]
 
-        user = users.find_one({"userid" : loginid})
+        user = users_collection.find_one({"userid" : loginid})
 
         if not user:
             return {"success" : False}
@@ -60,7 +57,7 @@ def login():
 def check_nickname():
     nickname = request.form["nickname"]
 
-    user = users.find_one({"nickname" : nickname})
+    user = users_collection.find_one({"nickname" : nickname})
 
     if user:
         return {"available" : False}
@@ -71,7 +68,7 @@ def check_nickname():
 def check_id():
     userid = request.form["userid"]
 
-    user = users.find_one({"userid" : userid})
+    user = users_collection.find_one({"userid" : userid})
 
     if user:
         return {"available" : False}
@@ -93,7 +90,7 @@ def signup():
                 error="비밀번호가 서로 일치하지 않습니다."
             )
 
-        if(users.find_one({"$or": [{"userid" : userid}, {"nickname": nickname}]})):
+        if(users_collection.find_one({"$or": [{"userid" : userid}, {"nickname": nickname}]})):
            return render_template(
                "signup.html",
                error="이미 사용 중인 아이디 또는 닉네임입니다."
@@ -106,7 +103,7 @@ def signup():
             'password' : password_hash,
             'point' : 10,
         }
-        db.users.insert_one(doc)
+        users_collection.insert_one(doc)
         return redirect(url_for("auth.login"))
 
     return render_template("signup.html")
@@ -127,7 +124,7 @@ def get_current_user():
 
         user_id = payload["user_id"]
 
-        user = users.find_one({"_id": ObjectId(user_id)})
+        user = users_collection.find_one({"_id": ObjectId(user_id)})
 
         return user
     
