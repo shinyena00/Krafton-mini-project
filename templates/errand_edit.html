@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}심부름 수정 - 정글 도움 교환소{% endblock %}
+
+{% block content %}
+<div class="container my-4" style="max-width: 700px;">
+    <div class="card shadow-sm border-0 p-4">
+        <h2 class="fw-bold mb-4">심부름 수정하기</h2>
+
+        <form id="edit-form">
+            <!-- 제목 -->
+            <div class="mb-3">
+                <label for="title" class="form-label fw-medium">심부름 제목</label>
+                <input type="text" class="form-control" id="title" name="title" value="{{ errand.title }}" required>
+            </div>
+
+            <!-- 보수 포인트 -->
+            <div class="mb-3">
+                <label for="reward" class="form-label fw-medium">보상 포인트 (P)</label>
+                <input type="number" class="form-control" id="reward" name="reward" value="{{ errand.reward }}" min="0"
+                    required>
+            </div>
+
+            <!-- 위치 -->
+            <div class="mb-3">
+                <label for="location" class="form-label fw-medium">위치 / 주소</label>
+                <input type="text" class="form-control" id="location" name="location" value="{{ errand.location }}"
+                    required>
+            </div>
+
+            <!-- 일시 -->
+            <div class="mb-3">
+                <label for="time" class="form-label fw-medium">희망 일시</label>
+                <input type="datetime-local" class="form-control" id="time" name="time" value="{{ errand.time }}"
+                    required>
+            </div>
+
+            <!-- 이미지 URL -->
+            <div class="mb-4">
+                <label for="image" class="form-label fw-medium">이미지 URL</label>
+                <input type="url" class="form-control" id="image" name="image" value="{{ errand.image }}"
+                    placeholder="https://example.com/image.jpg">
+            </div>
+
+            <!-- 버튼 영역 -->
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="/errands/{{ errand.errand_id }}" class="btn btn-outline-secondary">취소</a>
+                <button type="submit" class="btn btn-primary px-4">수정 완료</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        const errandId = "{{ errand.errand_id }}";
+
+        $("#edit-form").on("submit", function (e) {
+            e.preventDefault();
+
+            const formData = {
+                title: $("#title").val(),
+                reward: parseInt($("#reward").val()),
+                location: $("#location").val(),
+                time: $("#time").val(),
+                image: $("#image").val()
+            };
+
+            $.ajax({
+                url: `/api/errands/${errandId}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function (res) {
+                    alert("심부름 정보가 성공적으로 수정되었습니다.");
+                    window.location.href = `/errands/${errandId}`;
+                },
+                error: function (err) {
+                    alert(err.responseJSON?.message || "수정 중 오류가 발생했습니다.");
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

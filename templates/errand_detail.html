@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}심부름 상세 - 정글 도움 교환소{% endblock %}
+
+{% block content %}
+<div class="container my-4" style="max-width: 900px;">
+    <!-- 상단 버튼 및 상태 바 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="/" class="btn btn-outline-secondary btn-sm">
+            &larr; 목록으로 돌아가기
+        </a>
+        <div>
+            {% if errand.status == 'REQUESTED' %}
+            <span class="badge bg-warning text-dark fs-6 px-3 py-2">요청중</span>
+            {% elif errand.status == 'MATCHED' %}
+            <span class="badge bg-primary fs-6 px-3 py-2">매칭 완료</span>
+            {% elif errand.status == 'DONE' %}
+            <span class="badge bg-success fs-6 px-3 py-2">수행 완료</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 심부름 카드 상세 정보 -->
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="row g-0">
+            <!-- 대표 이미지 영역 -->
+            <div class="col-md-5 bg-light d-flex align-items-center justify-content-center" style="min-height: 280px;">
+                {% if errand.image %}
+                <img src="{{ errand.image }}" class="img-fluid h-100 w-100" style="object-fit: cover;" alt="심부름 이미지">
+                {% else %}
+                <div class="text-secondary text-center p-4">
+                    <p class="mb-0">등록된 이미지가 없습니다.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- 내용 상세 영역 -->
+            <div class="col-md-7">
+                <div class="card-body p-4 d-flex flex-column h-100 justify-content-between">
+                    <div>
+                        <h2 class="card-title fw-bold mb-3">{{ errand.title }}</h2>
+
+                        <div class="mb-3">
+                            <span class="text-primary fs-3 fw-bold">{{ "{:,}".format(errand.reward) }}</span>
+                            <span class="fs-5 text-muted"> Point</span>
+                        </div>
+
+                        <ul class="list-group list-group-flush mb-3 fs-6">
+                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                <span class="text-muted">위치</span>
+                                <span class="fw-medium">{{ errand.location }}</span>
+                            </li>
+                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                <span class="text-muted">일시</span>
+                                <span class="fw-medium">{{ errand.time }}</span>
+                            </li>
+                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                <span class="text-muted">등록자</span>
+                                <span class="fw-medium">{{ errand.register_id }}</span>
+                            </li>
+                            {% if errand.accepter_id %}
+                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                <span class="text-muted">수락자</span>
+                                <span class="fw-medium text-primary">{{ errand.accepter_id }}</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <!-- 액션 버튼 영역 (상태 및 사용자 식별에 따른 처리) -->
+                    <div class="pt-3 border-top d-flex gap-2 justify-content-end">
+                        {% if user %}
+                        <!-- 1. 등록자 본인인 경우 -->
+                        {% if user.id == errand.register_id %}
+                        {% if errand.status == 'REQUESTED' %}
+                        <a href="/errands/{{ errand.errand_id }}/edit" class="btn btn-outline-primary">수정하기</a>
+                        <button type="button" class="btn btn-outline-danger" id="btn-delete">삭제하기</button>
+                        {% elif errand.status == 'MATCHED' %}
+                        <button type="button" class="btn btn-success" id="btn-done">완료 확인</button>
+                        <button type="button" class="btn btn-outline-secondary" id="btn-cancel">매칭 취소</button>
+                        {% endif %}
+
+                        <!-- 2. 다른 사용자인 경우 -->
+                        {% else %}
+                        {% if errand.status == 'REQUESTED' %}
+                        <button type="button" class="btn btn-primary btn-lg w-100" id="btn-accept">심부름 수락하기</button>
+                        {% elif errand.status == 'MATCHED' and user.id == errand.accepter_id %}
+                        <button type="button" class="btn btn-success" id="btn-done">완료 요청</button>
+                        <button type="button" class="btn btn-outline-secondary" id="btn-cancel">수락 취소</button>
+                        {% endif %}
+                        {% endif %}
+                        {% else %}
+                        <a href="/login" class="btn btn-secondary w-100">로그인 후 이용할 수 있습니다</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        const errandId = "{{ errand.errand_id }}";
+
+        // 심부름 수락 AJAX
+        $("#btn-accept").click(function () {
+            if (!confirm("이 심부름을 수락하시겠습니까?")) return;
+
+            $.ajax({
+                url: `/api/errands/${errandId}/accept`,
+                type: "POST",
+                success: function (res) {
+                    alert("심부름을 성공적으로 수락했습니다!");
+                    location.reload();
+                },
+                error: function (err) {
+                    alert(err.responseJSON?.message || "수락 처리 중 오류가 발생했습니다.");
+                }
+            });
+        });
+
+        // 심부름 완료 AJAX
+        $("#btn-done").click(function () {
+            if (!confirm("심부름을 완료 처리하시겠습니까?")) return;
+
+            $.ajax({
+                url: `/api/errands/${errandId}/done`,
+                type: "POST",
+                success: function (res) {
+                    alert("심부름이 완료되었습니다.");
+                    location.reload();
+                },
+                error: function (err) {
+                    alert(err.responseJSON?.message || "완료 처리 중 오류가 발생했습니다.");
+                }
+            });
+        });
+
+        // 매칭/수락 취소 AJAX
+        $("#btn-cancel").click(function () {
+            if (!confirm("정말 취소하시겠습니까?")) return;
+
+            $.ajax({
+                url: `/api/errands/${errandId}/cancel`,
+                type: "POST",
+                success: function (res) {
+                    alert("취소 처리되었습니다.");
+                    location.reload();
+                },
+                error: function (err) {
+                    alert(err.responseJSON?.message || "취소 처리 중 오류가 발생했습니다.");
+                }
+            });
+        });
+
+        // 심부름 삭제 AJAX
+        $("#btn-delete").click(function () {
+            if (!confirm("정말 삭제하시겠습니까?")) return;
+
+            $.ajax({
+                url: `/api/errands/${errandId}`,
+                type: "DELETE",
+                success: function (res) {
+                    alert("삭제되었습니다.");
+                    window.location.href = "/";
+                },
+                error: function (err) {
+                    alert(err.responseJSON?.message || "삭제 중 오류가 발생했습니다.");
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
