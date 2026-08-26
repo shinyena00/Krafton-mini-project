@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}
+회원가입
+{% endblock %}
+
+{% block content %}
+
+<div class="signup-page">
+    <div class="userinfo">
+        <h1>회원가입</h1>
+        <p class="signup mb-4">기본 정보를 입력해주세요</p>
+        <label for="profile_image" class="profile-label">
+            <img src="{{ url_for('static', filename='images/default_profile.png') }}" class="profile-img"
+                alt="기본 프로필 이미지">
+            <span class="camera-icon">📷</span>
+        </label>
+        <input type="file" id="profile_image" accept="image/*" class="hidden-file-input">
+        <p class="signup">프로필 사진 등록</p>
+    </div>
+
+    <form method="POST" action="/signup">
+        {% if error %}
+        <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        <div class="rounded mb-4">
+            <label>닉네임</label>
+            <div class="nickname">
+                <input type="text" id="user_nickname" class="signform form-control mb-8" name="user_nickname">
+                <button type="button" onclick="nicknameCheck()">중복확인</button>
+            </div>
+        </div>
+        <div class="rounded mb-4">
+            <label>아이디</label>
+            <div class="userid">
+                <input type="text" id="userid" class="signform form-control mb-8" name="user_id">
+                <button type="button" onclick="useridCheck()">중복확인</button>
+            </div>
+        </div>
+        <div class="rounded mb-4">
+            <label>비밀번호</label>
+            <input type="text" class="signform form-control mb-8" name="user_password">
+        </div>
+        <div class="rounded">
+            <label>비밀번호 확인</label>
+            <input type="text" class="signform form-control" name="user_password_confirm">
+        </div>
+
+
+        <hr class="mb-4">
+
+        <div class="border rounded mb-5 point-alert p-4">
+            가입 완료 시 기본 10P가 지급됩니다.
+        </div>
+
+        <button type="submit" class="joinsubmit mb-4">가입하기</button>
+    </form>
+    <p class="signup" style="font-size: 15px; text-align:center;">
+        <a href="{{ url_for('auth.login') }}">이미 계정이 있나요?</a>
+    </p>
+
+</div>
+
+
+
+{% endblock %}
+
+
+{% block head %}
+
+<style>
+    main {
+        text-align: left;
+    }
+
+    .userinfo {
+        text-align: center;
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .profile-label {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .camera-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .hidden-file-input {
+        display: none;
+    }
+
+    .signup-page {
+        padding: 0 30%;
+    }
+
+    .signup {
+        color: gray;
+    }
+
+    .join {
+        background-color: black;
+        color: white;
+    }
+
+    .signform .form-control {
+        background-color: darkgrey;
+    }
+
+    .point-alert {
+        background-color: aliceblue;
+        color: cornflowerblue;
+        border: 1px solid cornflowerblue;
+    }
+
+    .nickname, .userid {
+        display: flex;
+        gap: 10px;
+    }
+
+    .nickname button, .userid button {
+        width: 90px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        font-size: 10px;
+    }
+
+    .joinsubmit {
+        width: 100%;
+        padding: 16px;
+        background-color: black;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        text-align: center;
+    }
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    let nicknameChecked = false
+
+    function nicknameCheck() {
+
+        let nickname = $("#user_nickname").val();
+
+        if(nickname.trim() === ""){
+            alert("닉네임을 입력해주세요.")
+            return
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/check-nickname",
+            data: { nickname: nickname },
+            success: function (response) {
+                if (response.available == false) {
+                    alert("닉네임이 중복 됩니다.")
+                }
+                else {
+                    alert("사용 가능한 닉네임입니다.")
+                    nicknameChecked = true
+                }
+            }
+        })
+    }
+
+    $("#user_nickname").on("input", function () {
+        nicknameChecked = false
+    })
+
+
+
+    /*아이디*/
+    let useridChecked = false;
+
+    function useridCheck() {
+
+        let userid = $("#userid").val();
+
+        if(userid.trim() === ""){
+            alert("아이디를 입력해주세요.")
+            return
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/check-id",
+            data: { userid: userid },
+            success: function (response) {
+                if (response.available == false) {
+                    alert("아이디가 중복 됩니다.")
+                }
+                else {
+                    alert("사용 가능한 아이디입니다.")
+                    useridChecked = true
+                }
+            }
+        })
+    }
+
+    $("#userid").on("input", function () {
+        useridChecked = false
+    })
+
+    $("form").on("submit", function (event) {
+        if (nicknameChecked == false) {
+            event.preventDefault();
+            alert("닉네임 중복확인을 해주세요.")
+        }
+        if (useridChecked == false) {
+            event.preventDefault();
+            alert("아이디 중복확인을 해주세요.")
+        }
+    })
+
+
+</script>
+
+{% endblock %}
