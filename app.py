@@ -1,4 +1,4 @@
-from routes.auth import auth
+from routes.auth import auth, get_current_user
 from bson import ObjectId
 from pymongo import MongoClient
 
@@ -58,19 +58,12 @@ def search_errand():
     result=list(errands.find({},{'_id':0}))
     return jsonify({'point':result})
 
-@app.route('/login')
-def login():
-    return render_template('login.html') 
-
-@app.route('/signup')
-def signup():
-    return render_template('signup.html') 
-
 #동적라우팅
 @app.route('/errand_detail/<errand_id>')
 def errand_detail(errand_id):
-    errand = db.errands.find_one({'_id': ObjectId(errand_id)})
-    return render_template('errand_detail.html',errand=errand)
+    errand = errands.find_one({'_id': ObjectId(errand_id)})
+    user = get_current_user()
+    return render_template('errand_detail.html',errand=errand,user=user)
 
 
 # @app.route('/mypage')
