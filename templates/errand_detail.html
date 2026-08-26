@@ -1,101 +1,173 @@
 {% extends "base.html" %}
 
-{% block title %}심부름 상세 - 정글 도움 교환소{% endblock %}
+{% block title %}{{ errand.title }} - 정글 도움 교환소{% endblock %}
 
-{% block content %}
-<div class="container my-4" style="max-width: 900px;">
-    <!-- 상단 버튼 및 상태 바 -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="/" class="btn btn-outline-secondary btn-sm">
-            &larr; 목록으로 돌아가기
-        </a>
-        <div>
-            {% if errand.status == 'REQUESTED' %}
-            <span class="badge bg-warning text-dark fs-6 px-3 py-2">요청중</span>
-            {% elif errand.status == 'MATCHED' %}
-            <span class="badge bg-primary fs-6 px-3 py-2">매칭 완료</span>
-            {% elif errand.status == 'DONE' %}
-            <span class="badge bg-success fs-6 px-3 py-2">수행 완료</span>
+{% block header %}
+<!-- 피그마 상단 네비게이션 헤더 -->
+<header class="bg-white border-bottom py-2">
+    <div class="container-fluid px-4 d-flex align-items-center justify-content-between">
+        <!-- 좌측 로고 영역 -->
+        <div class="d-flex align-items-center gap-3">
+            <a href="/" class="d-inline-block rounded bg-secondary-subtle border"
+                style="width: 110px; height: 32px;"></a>
+        </div>
+
+        <!-- 중앙 검색창 -->
+        <div class="flex-grow-1 mx-4" style="max-width: 700px;">
+            <input type="text" class="form-control form-control-sm bg-light border-0 py-2 px-3 rounded" placeholder="검색"
+                style="font-size: 13px;">
+        </div>
+
+        <!-- 우측 보유 포인트 / 올리기 / 프로필 -->
+        <div class="d-flex align-items-center gap-2">
+            {% if user %}
+            <span class="badge bg-white text-dark border px-3 py-2 fw-normal" style="font-size: 13px;">
+                보유 <strong class="fw-bold">{{ user.point }}P</strong>
+            </span>
+            <a href="/errands/create" class="btn btn-outline-secondary btn-sm px-3 py-1 bg-white text-dark border"
+                style="font-size: 13px;">
+                올리기
+            </a>
+            <div class="d-flex align-items-center gap-2 ms-2">
+                <div class="rounded-circle bg-secondary-subtle border" style="width: 34px; height: 34px;"></div>
+                <span class="fw-medium text-dark" style="font-size: 13px;">{{ user.nickname }}</span>
+            </div>
+            {% else %}
+            <a href="/login" class="btn btn-sm btn-outline-secondary px-3" style="font-size: 13px;">로그인</a>
+            <a href="/signup" class="btn btn-sm btn-dark px-3" style="font-size: 13px;">회원가입</a>
             {% endif %}
         </div>
     </div>
+</header>
+{% endblock %}
 
-    <!-- 심부름 카드 상세 정보 -->
-    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
-        <div class="row g-0">
-            <!-- 대표 이미지 영역 -->
-            <div class="col-md-5 bg-light d-flex align-items-center justify-content-center" style="min-height: 280px;">
+{% block content %}
+<div class="container-fluid px-5 py-4" style="max-width: 1350px;">
+    <!-- 상단 목록으로 링크 -->
+    <div class="mb-3">
+        <a href="/" class="text-secondary text-decoration-none small fw-medium d-inline-flex align-items-center gap-1">
+            <span>&larr;</span> 목록으로
+        </a>
+    </div>
+
+    <!-- 본문 레이아웃 (좌측 컨텐츠 + 우측 고정 카드) -->
+    <div class="row g-4">
+
+        <!-- [좌측 8열 영역] -->
+        <div class="col-lg-8 pe-lg-4">
+            <!-- 1. 대형 이미지 박스 (피그마의 X자 플레이스홀더 형태 구현) -->
+            <div class="bg-light rounded-3 border d-flex align-items-center justify-content-center mb-4 position-relative overflow-hidden"
+                style="height: 380px;">
                 {% if errand.image %}
-                <img src="{{ errand.image }}" class="img-fluid h-100 w-100" style="object-fit: cover;" alt="심부름 이미지">
+                <img src="{{ errand.image }}" class="w-100 h-100" style="object-fit: cover;" alt="심부름 이미지">
                 {% else %}
-                <div class="text-secondary text-center p-4">
-                    <p class="mb-0">등록된 이미지가 없습니다.</p>
-                </div>
+                <!-- 이미지가 없을 때의 피그마 대각선 X자 SVG 라인 -->
+                <svg class="position-absolute w-100 h-100 text-secondary-subtle" preserveAspectRatio="none"
+                    viewBox="0 0 100 100" style="stroke: #e0e0e0; stroke-width: 0.5;">
+                    <line x1="0" y1="0" x2="100" y2="100"></line>
+                    <line x1="100" y1="0" x2="0" y2="100"></line>
+                </svg>
                 {% endif %}
             </div>
 
-            <!-- 내용 상세 영역 -->
-            <div class="col-md-7">
-                <div class="card-body p-4 d-flex flex-column h-100 justify-content-between">
-                    <div>
-                        <h2 class="card-title fw-bold mb-3">{{ errand.title }}</h2>
+            <!-- 2. 제목 -->
+            <h4 class="fw-bold mb-4 text-dark" style="font-size: 24px;">{{ errand.title }}</h4>
 
-                        <div class="mb-3">
-                            <span class="text-primary fs-3 fw-bold">{{ "{:,}".format(errand.reward) }}</span>
-                            <span class="fs-5 text-muted"> Point</span>
-                        </div>
-
-                        <ul class="list-group list-group-flush mb-3 fs-6">
-                            <li class="list-group-item px-0 d-flex justify-content-between">
-                                <span class="text-muted">위치</span>
-                                <span class="fw-medium">{{ errand.location }}</span>
-                            </li>
-                            <li class="list-group-item px-0 d-flex justify-content-between">
-                                <span class="text-muted">일시</span>
-                                <span class="fw-medium">{{ errand.time }}</span>
-                            </li>
-                            <li class="list-group-item px-0 d-flex justify-content-between">
-                                <span class="text-muted">등록자</span>
-                                <span class="fw-medium">{{ errand.register_id }}</span>
-                            </li>
-                            {% if errand.accepter_id %}
-                            <li class="list-group-item px-0 d-flex justify-content-between">
-                                <span class="text-muted">수락자</span>
-                                <span class="fw-medium text-primary">{{ errand.accepter_id }}</span>
-                            </li>
-                            {% endif %}
-                        </ul>
-                    </div>
-
-                    <!-- 액션 버튼 영역 (상태 및 사용자 식별에 따른 처리) -->
-                    <div class="pt-3 border-top d-flex gap-2 justify-content-end">
-                        {% if user %}
-                        <!-- 1. 등록자 본인인 경우 -->
-                        {% if user.id == errand.register_id %}
-                        {% if errand.status == 'REQUESTED' %}
-                        <a href="/errands/{{ errand.errand_id }}/edit" class="btn btn-outline-primary">수정하기</a>
-                        <button type="button" class="btn btn-outline-danger" id="btn-delete">삭제하기</button>
-                        {% elif errand.status == 'MATCHED' %}
-                        <button type="button" class="btn btn-success" id="btn-done">완료 확인</button>
-                        <button type="button" class="btn btn-outline-secondary" id="btn-cancel">매칭 취소</button>
-                        {% endif %}
-
-                        <!-- 2. 다른 사용자인 경우 -->
-                        {% else %}
-                        {% if errand.status == 'REQUESTED' %}
-                        <button type="button" class="btn btn-primary btn-lg w-100" id="btn-accept">심부름 수락하기</button>
-                        {% elif errand.status == 'MATCHED' and user.id == errand.accepter_id %}
-                        <button type="button" class="btn btn-success" id="btn-done">완료 요청</button>
-                        <button type="button" class="btn btn-outline-secondary" id="btn-cancel">수락 취소</button>
-                        {% endif %}
-                        {% endif %}
-                        {% else %}
-                        <a href="/login" class="btn btn-secondary w-100">로그인 후 이용할 수 있습니다</a>
-                        {% endif %}
-                    </div>
+            <!-- 3. 메타 정보 (장소, 기한, 사례 포인트) -->
+            <div class="mb-4" style="font-size: 14px;">
+                <div class="row mb-2">
+                    <div class="col-3 text-secondary" style="max-width: 100px;">장소</div>
+                    <div class="col-9 text-dark fw-medium">{{ errand.location }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-3 text-secondary" style="max-width: 100px;">기한</div>
+                    <div class="col-9 text-dark fw-medium">{{ errand.time }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-3 text-secondary" style="max-width: 100px;">사례 포인트</div>
+                    <div class="col-9 text-dark fw-bold">{{ errand.reward }}P</div>
                 </div>
             </div>
+
+            <hr class="my-4" style="border-top: 1px solid #eaeaea;">
+
+            <!-- 4. 상세 설명 -->
+            <div>
+                <div class="text-secondary fw-bold mb-2" style="font-size: 13px;">상세 설명</div>
+                <p class="text-secondary lh-base mb-0" style="font-size: 13px;">
+                    {{ errand.description | default('정글 캠퍼스 1층 편의점에서 생수(500ml) 2병을 구매해 로비 테이블에 올려주세요. 사례 포인트는 완료 확인 후 자동
+                    지급됩니다.', true) }}
+                </p>
+            </div>
         </div>
+
+        <!-- [우측 4열 영역] 피그마 고정 액션 카드 -->
+        <div class="col-lg-4">
+            <div class="card border rounded-3 p-4 shadow-none sticky-top" style="top: 24px; border-color: #e5e5e5;">
+                <!-- 요청자 프로필 -->
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom"
+                    style="border-color: #f0f0f0 !important;">
+                    <div class="rounded-circle bg-secondary-subtle border" style="width: 48px; height: 48px;"></div>
+                    <div>
+                        <div class="fw-bold text-dark" style="font-size: 15px;">{{ errand.register_id }}</div>
+                        <span class="text-muted" style="font-size: 12px;">요청자</span>
+                    </div>
+                </div>
+
+                <!-- 요약 스펙 리스트 -->
+                <div class="mb-4" style="font-size: 13px;">
+                    <div class="d-flex justify-content-between py-2">
+                        <span class="text-secondary">기한</span>
+                        <span class="text-dark fw-medium">{{ errand.time }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2">
+                        <span class="text-secondary">사례 포인트</span>
+                        <span class="text-dark fw-bold">{{ errand.reward }}P</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2">
+                        <span class="text-secondary">장소</span>
+                        <span class="text-dark fw-medium text-end" style="max-width: 65%;">{{ errand.location }}</span>
+                    </div>
+                </div>
+
+                <!-- 하늘색 포인트 안내 박스 -->
+                <div class="p-3 mb-4 rounded-3" style="background-color: #f0f7ff; border: 1px solid #ddecfe;">
+                    <p class="mb-0 small" style="color: #2b7fff; font-size: 12px; line-height: 1.5;">
+                        이 심부름을 완료하면 <strong>{{ errand.reward }}P</strong>를 받을 수 있습니다.
+                    </p>
+                </div>
+
+                <!-- 검정색 수락하기 / 수정 액션 버튼 -->
+                {% if user and user.id == errand.register_id %}
+                <!-- 작성자 본인일 때 (수정 / 삭제) -->
+                <div class="d-flex gap-2">
+                    <a href="/errands/{{ errand.errand_id }}/edit" class="btn btn-outline-dark w-50 py-2 fw-medium"
+                        style="font-size: 14px;">수정</a>
+                    <button type="button" class="btn btn-outline-danger w-50 py-2 fw-medium" id="btn-delete"
+                        style="font-size: 14px;">삭제</button>
+                </div>
+                {% else %}
+                <!-- 피그마 시안 기준 검정색 수락 버튼 -->
+                {% if errand.status == 'REQUESTED' %}
+                <button class="btn btn-dark w-100 py-2 fw-medium rounded-2" id="btn-accept"
+                    style="background-color: #222; font-size: 14px; height: 42px;">
+                    수락하기
+                </button>
+                {% elif errand.status == 'MATCHED' %}
+                <button class="btn btn-secondary w-100 py-2 fw-medium rounded-2" disabled
+                    style="font-size: 14px; height: 42px;">
+                    매칭 완료
+                </button>
+                {% else %}
+                <button class="btn btn-light border w-100 py-2 text-muted fw-medium rounded-2" disabled
+                    style="font-size: 14px; height: 42px;">
+                    종료된 심부름
+                </button>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}
@@ -105,15 +177,21 @@
     $(document).ready(function () {
         const errandId = "{{ errand.errand_id }}";
 
-        // 심부름 수락 AJAX
+        // 수락하기 AJAX
         $("#btn-accept").click(function () {
+            {% if not user %}
+            alert("로그인이 필요한 서비스입니다.");
+            window.location.href = "/login";
+            return;
+            {% endif %}
+
             if (!confirm("이 심부름을 수락하시겠습니까?")) return;
 
             $.ajax({
                 url: `/api/errands/${errandId}/accept`,
                 type: "POST",
                 success: function (res) {
-                    alert("심부름을 성공적으로 수락했습니다!");
+                    alert("심부름이 수락되었습니다!");
                     location.reload();
                 },
                 error: function (err) {
@@ -122,43 +200,9 @@
             });
         });
 
-        // 심부름 완료 AJAX
-        $("#btn-done").click(function () {
-            if (!confirm("심부름을 완료 처리하시겠습니까?")) return;
-
-            $.ajax({
-                url: `/api/errands/${errandId}/done`,
-                type: "POST",
-                success: function (res) {
-                    alert("심부름이 완료되었습니다.");
-                    location.reload();
-                },
-                error: function (err) {
-                    alert(err.responseJSON?.message || "완료 처리 중 오류가 발생했습니다.");
-                }
-            });
-        });
-
-        // 매칭/수락 취소 AJAX
-        $("#btn-cancel").click(function () {
-            if (!confirm("정말 취소하시겠습니까?")) return;
-
-            $.ajax({
-                url: `/api/errands/${errandId}/cancel`,
-                type: "POST",
-                success: function (res) {
-                    alert("취소 처리되었습니다.");
-                    location.reload();
-                },
-                error: function (err) {
-                    alert(err.responseJSON?.message || "취소 처리 중 오류가 발생했습니다.");
-                }
-            });
-        });
-
-        // 심부름 삭제 AJAX
+        // 삭제하기 AJAX
         $("#btn-delete").click(function () {
-            if (!confirm("정말 삭제하시겠습니까?")) return;
+            if (!confirm("정말 이 심부름을 삭제하시겠습니까?")) return;
 
             $.ajax({
                 url: `/api/errands/${errandId}`,
