@@ -1,6 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, make_response, jsonify
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
+from datetime import datetime, timedelta, timezone
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+SECRET_KEY = os.environ["JWT_SECRET_KEY"]
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["jungle_errand"]
@@ -26,7 +33,27 @@ def login():
             return {"success" : False}
 
         else:
-            return {"success" : True}
+            payload = {
+                "user_id" : str(user["_id"]),
+                "exp" : datetime.now(timezone.utc) + timedelta(hours=24)
+            }
+
+            token = jwt.encode(
+                payload,
+                SECRET_KEY,
+                algorithm="HS256"
+            )
+
+            response = make_response(
+                jsonify({"success": True})
+            )
+
+            response.set_cookie(
+                "token",
+                token,
+                httponly=True
+            )
+            return response
 
 
     return render_template("login.html")
@@ -84,7 +111,7 @@ def signup():
         db.users.insert_one(doc)
         return redirect(url_for("login"))
 
-    return render_template("/signup.html")
+    return render_template("signup.html")
 
         
 
