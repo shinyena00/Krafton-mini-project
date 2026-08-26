@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
+from werkzeug.security import generate_password_hash
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["jungle_errand"]
@@ -56,12 +57,12 @@ def signup():
                "signup.html",
                error="이미 사용 중인 아이디 또는 닉네임입니다."
            )
-        
 
+        password_hash = generate_password_hash(password)
         doc = {
             'userid' : userid,
             'nickname' : nickname,
-            'password' : password,
+            'password' : password_hash,
             'point' : 10,
         }
         db.users.insert_one(doc)
