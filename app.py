@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["jungle_errand"]
@@ -8,11 +8,27 @@ users = db["users"]
 app = Flask(__name__)
 
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        loginid = request.form["loginid"]
+        loginpassword = request.form["loginpassword"]
+
+        user = users.find_one({"userid" : loginid})
+
+        if not user:
+            return {"success" : False}
+
+        if not check_password_hash(user['password'], loginpassword):
+            return {"success" : False}
+
+        else:
+            return {"success" : True}
+
+
     return render_template("login.html")
 
 @app.route("/check-nickname", methods=["POST"])
