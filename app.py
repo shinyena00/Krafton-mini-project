@@ -5,6 +5,7 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 import os
+from bson.objectid import ObjectId
 
 load_dotenv()
 SECRET_KEY = os.environ["JWT_SECRET_KEY"]
@@ -18,9 +19,6 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-@app.route("/mypage")
-def mypage():
-    return render_template("mypage.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -118,7 +116,7 @@ def signup():
     return render_template("signup.html")
 
         
-def get_current_user_id():
+def get_current_user():
     token = request.cookies.get("token")
 
     if not token:
@@ -131,13 +129,34 @@ def get_current_user_id():
             algorithms=["HS256"]
         )
 
-        return payload["user_id"]
+        user_id = payload["user_id"]
+
+        user = users.find_one({"_id": ObjectId(user_id)})
+
+        return user
     
     except jwt.ExpiredSignatureError:
         return None
 
     except jwt.InvalidTokenError:
         return None
+
+@app.route("/mypage")
+def mypage():
+    user = get_current_user()
+
+    if not user:
+        return """
+        <script>
+            alert("로그인을 먼저 진행해주세요.\\n 확인을 누르면 로그인 창으로 이동합니다.")
+            window.location.href = "/login";
+        </script>
+        """
+
+    return render_template(
+        "mypage.html",
+        user=user
+    )
 
 
 
