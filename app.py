@@ -114,8 +114,26 @@ def signup():
     return render_template("signup.html")
 
         
+def get_current_user_id():
+    token = request.cookies.get("token")
 
+    if not token:
+        return None
 
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=["HS256"]
+        )
+
+        return payload["user_id"]
+    
+    except jwt.ExpiredSignatureError:
+        return None
+
+    except jwt.InvalidTokenError:
+        return None
 
 
 
