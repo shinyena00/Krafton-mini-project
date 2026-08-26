@@ -109,8 +109,83 @@ main {
 /*상단바 */
 
 .topbar {
+    align-items: center;
     width: 100%;
     height: 50px;
     background-color: #fff;
     border-bottom: 1px solid #ddd;
+}
+
+.sidebar {
+    display: flex;
+    flex: 1;
+
+    flex-direction: column;
+    min-height: 100vh;
+    padding-left: 0px;
+    margin-left: 0px;
+}
+
+.sidebar.border-end.border-black {
+    margin: 0px;
+    padding: 0px;
+}
+
+.enroll_button {
+    position: fixed;
+    top: 90%;
+    left: 90%;
+}
+
+.new_content {
+    display: flex;
+    flex-direction: column;
+
+}
+
+#description {
+    width: 40%;
+}
+
+.mypage_button {
+    position: fixed;
+    top: 90%;
+    left: 10%;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.period_reward_box {
+    display: flex;
+    gap: 20px;
+}
+
+.upload_box {
+    width: 200px;
+    height: 200px;
+    border: 1px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.upload_area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.submit_button {
+    background-color: black;
+    color: white;
+}
+
+.field_group {
+    display: flex;
+    flex-direction: column;
 }
