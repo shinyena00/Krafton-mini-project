@@ -1,104 +1,689 @@
 {% extends "base.html" %}
 
-{% block title %} 정글 도움 교환소 등록{% endblock %}
+{% block title %}새 글 등록 - 정글 도움 교환소{% endblock %}
+
+{% block head %}
+<style>
+    .topbar {
+        height: 70px;
+    }
+
+    main {
+        max-width: 1280px;
+        padding: 54px 32px 90px;
+    }
+
+    /* 상단 내비게이션 */
+
+    .new-errand-navbar {
+        display: grid;
+        grid-template-columns: 160px minmax(240px, 1fr) auto;
+        align-items: center;
+        gap: 28px;
+        width: 100%;
+        height: 70px;
+        padding: 0 40px;
+        border-bottom: 1px solid #e7e7e7;
+        background-color: #fff;
+    }
+
+    .brand-placeholder {
+        display: block;
+        width: 160px;
+        height: 40px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background-color: #f3f3f3;
+    }
+
+    .header-search {
+        width: 100%;
+        height: 46px;
+        padding: 0 18px;
+        border: 1px solid #ddd;
+        border-radius: 9px;
+        background-color: #f5f5f5;
+        color: #222;
+        outline: none;
+    }
+
+    .header-search:focus {
+        border-color: #999;
+        background-color: #fff;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        white-space: nowrap;
+    }
+
+    .point-badge,
+    .header-upload-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 44px;
+        padding: 0 17px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background-color: #fff;
+        font-size: 14px;
+    }
+
+    .point-badge {
+        gap: 6px;
+        color: #777;
+    }
+
+    .point-badge strong {
+        color: #222;
+    }
+
+    .header-upload-button:hover {
+        background-color: #f7f7f7;
+    }
+
+    .header-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .profile-image {
+        width: 42px;
+        height: 42px;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        background-color: #f3f3f3;
+        object-fit: cover;
+    }
+
+    /* 등록 본문 */
+
+    .new-errand-page {
+        width: 100%;
+    }
+
+    .page-title {
+        margin-bottom: 46px;
+        font-size: 26px;
+        line-height: 1.3;
+    }
+
+    .new-errand-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 2.2fr) minmax(300px, 0.95fr);
+        gap: 42px;
+        align-items: start;
+    }
+
+    .new-errand-form {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-field > label:first-child {
+        margin-bottom: 11px;
+        color: #222;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .form-field input[type="text"],
+    .form-field input[type="number"],
+    .form-field textarea {
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f6f6f6;
+        color: #222;
+        outline: none;
+        transition:
+            border-color 0.15s ease,
+            background-color 0.15s ease;
+    }
+
+    .form-field input[type="text"],
+    .form-field input[type="number"] {
+        height: 54px;
+        padding: 0 16px;
+    }
+
+    .form-field textarea {
+        min-height: 180px;
+        padding: 17px 16px;
+        line-height: 1.6;
+        resize: vertical;
+    }
+
+    .form-field input:focus,
+    .form-field textarea:focus {
+        border-color: #999;
+        background-color: #fff;
+    }
+
+    .form-field input::placeholder,
+    .form-field textarea::placeholder {
+        color: #929292;
+    }
+
+    .form-bottom-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    /* 기한 입력 */
+
+    .deadline-inputs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .deadline-input {
+        position: relative;
+    }
+
+    .deadline-input input {
+        padding-right: 34px !important;
+    }
+
+    .deadline-input span {
+        position: absolute;
+        top: 50%;
+        right: 13px;
+        transform: translateY(-50%);
+        color: #555;
+        font-size: 13px;
+        font-weight: 600;
+        pointer-events: none;
+    }
+
+    .deadline-input input:disabled {
+        color: #aaa;
+        background-color: #eee;
+    }
+
+    .deadline-input input::-webkit-outer-spin-button,
+    .deadline-input input::-webkit-inner-spin-button {
+        margin: 0;
+        -webkit-appearance: none;
+    }
+
+    .deadline-input input {
+        appearance: textfield;
+        -moz-appearance: textfield;
+    }
+
+    .no-limit-option {
+        display: inline-flex;
+        align-items: center;
+        align-self: flex-start;
+        gap: 8px;
+        margin-top: 10px;
+        color: #444;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .no-limit-option input {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        accent-color: #222;
+    }
+
+    /* 포인트 입력 */
+
+    .point-input {
+        position: relative;
+    }
+
+    .point-input input {
+        padding-right: 45px !important;
+    }
+
+    .point-input span {
+        position: absolute;
+        top: 50%;
+        right: 17px;
+        transform: translateY(-50%);
+        color: #222;
+        font-weight: 700;
+    }
+
+    #point::-webkit-outer-spin-button,
+    #point::-webkit-inner-spin-button {
+        margin: 0;
+        -webkit-appearance: none;
+    }
+
+    #point {
+        appearance: textfield;
+        -moz-appearance: textfield;
+    }
+
+    .form-helper {
+        margin: 9px 0 0;
+        color: #888;
+        font-size: 12px;
+    }
+
+    /* 이미지 업로드 */
+
+    .upload-area {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .upload-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 280px;
+        border: 1px dashed #ccc;
+        border-radius: 9px;
+        background-color: #f7f7f7;
+        color: #999;
+        font-size: 15px;
+        cursor: pointer;
+        transition:
+            border-color 0.15s ease,
+            background-color 0.15s ease;
+    }
+
+    .upload-box:hover {
+        border-color: #888;
+        background-color: #f1f1f1;
+    }
+
+    .submit-button {
+        width: 100%;
+        height: 56px;
+        border: 0;
+        border-radius: 9px;
+        background-color: #303030;
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+
+    .submit-button:hover {
+        background-color: #111;
+    }
+
+    /* 태블릿 */
+
+    @media (max-width: 900px) {
+        .new-errand-navbar {
+            grid-template-columns: 130px minmax(180px, 1fr) auto;
+            gap: 14px;
+            padding: 0 20px;
+        }
+
+        .brand-placeholder {
+            width: 130px;
+        }
+
+        .header-profile span {
+            display: none;
+        }
+
+        .new-errand-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .upload-area {
+            max-width: 500px;
+        }
+    }
+
+    /* 모바일 */
+
+    @media (max-width: 640px) {
+        main {
+            padding: 36px 18px 70px;
+        }
+
+        .new-errand-navbar {
+            display: flex;
+        }
+
+        .brand-placeholder {
+            width: 44px;
+            flex-shrink: 0;
+        }
+
+        .header-search {
+            min-width: 0;
+        }
+
+        .point-badge,
+        .header-profile {
+            display: none;
+        }
+
+        .header-upload-button {
+            padding: 0 12px;
+        }
+
+        .page-title {
+            margin-bottom: 32px;
+            font-size: 23px;
+        }
+
+        .form-bottom-row {
+            grid-template-columns: 1fr;
+        }
+
+        .upload-box {
+            height: 230px;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block header %}
-<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-    <div class="container">
-        <a class="navbar-brand" href="/">정글 도움 교환소</a>
-    </div>
-    <div>
-        <a href="" class>로그인</a>
-        <a href="" class>회원가입</a>
+<nav class="new-errand-navbar">
+    <a
+        href="/"
+        class="brand-placeholder"
+        aria-label="홈으로 이동"
+    ></a>
+
+    <input
+        type="text"
+        class="header-search"
+        placeholder="검색"
+        aria-label="검색"
+    >
+
+    <div class="header-actions">
+        <span class="point-badge">
+            보유 <strong>{{ user.point }}P</strong>
+        </span>
+
+        <a
+            href="{{ url_for('new_errand') }}"
+            class="header-upload-button"
+        >
+            올리기
+        </a>
+
+        <div class="header-profile">
+            <img
+                src="{{ url_for('static', filename='images/default_profile.png') }}"
+                alt="프로필 이미지"
+                class="profile-image"
+            >
+            <span>{{ user.nickname }}</span>
+        </div>
     </div>
 </nav>
 {% endblock %}
 
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/new_errand.css') }}">
-{% endblock %}
-
 {% block content %}
+<div class="new-errand-page">
+    <h1 class="page-title">새 글 등록</h1>
 
-<div class="new_content col-5">
-    <div>
-        <h1>새 글 등록</h1>
-    </div>
-    <div>
-        <div>
-            <label for="title">제목</label>
-            <input id="title" placeholder="편의점에서 생수 2병 부탁해요" />
-        </div>
-        <div>
-            <label for="description">상세 설명</label>
-            <textarea id="description" placeholder="정글 캠퍼스 1층  편의점에서 생수(500ml) 2병을 구매해 로비 테이블에 올려주세요" rows="6"
-                cols="22"></textarea>
-        </div>
-        <div>
-            <label for="place">장소</label>
-            <input id="place" placeholder="정글 캠퍼스 1층  편의점에서 생수(500ml) 2병을 구매해 로비 테이블에 올려주세요" />
-        </div>
-        <div class="period_reward_box">
-            <div class="field_group">
-                <label for="period">기한</label>
-                <input id="period" placeholder="20분 이내" />
-                <input type="checkbox">
-                <p>무기한</p>
+    <div class="new-errand-layout">
+        <section class="new-errand-form">
+            <div class="form-field">
+                <label for="title">제목</label>
+                <input
+                    id="title"
+                    type="text"
+                    placeholder="편의점에서 생수 2병 부탁해요"
+                >
             </div>
-            <div class="field_group">
-                <label for="point">사례포인트</label>
-                <input id="point" placeholder="2" />
-                <p>P</p>
-                <p>현재 보유 포인트:10P</p>
-                <p>보유한 포인트에서 자유롭게 설정하여 사용할 수 있습니다.</p>
+
+            <div class="form-field">
+                <label for="description">상세 설명</label>
+                <textarea
+                    id="description"
+                    placeholder="정글 캠퍼스 1층 편의점에서 생수(500ml) 2병을 구매해 로비 테이블에 올려주세요."
+                ></textarea>
             </div>
-        </div>
+
+            <div class="form-field">
+                <label for="place">장소</label>
+                <input
+                    id="place"
+                    type="text"
+                    placeholder="정글 캠퍼스 1층 로비"
+                >
+            </div>
+
+            <div class="form-bottom-row">
+                <div class="form-field">
+                    <label>기한</label>
+
+                    <div class="deadline-inputs">
+                        <div class="deadline-input">
+                            <input
+                                id="deadline-days"
+                                type="number"
+                                min="0"
+                                value="0"
+                                aria-label="기한 일"
+                            >
+                            <span>일</span>
+                        </div>
+
+                        <div class="deadline-input">
+                            <input
+                                id="deadline-hours"
+                                type="number"
+                                min="0"
+                                max="23"
+                                value="0"
+                                aria-label="기한 시간"
+                            >
+                            <span>시간</span>
+                        </div>
+
+                        <div class="deadline-input">
+                            <input
+                                id="deadline-minutes"
+                                type="number"
+                                min="0"
+                                max="59"
+                                value="20"
+                                aria-label="기한 분"
+                            >
+                            <span>분</span>
+                        </div>
+                    </div>
+
+                    <label class="no-limit-option" for="no-limit">
+                        <input id="no-limit" type="checkbox">
+                        <span>무기한</span>
+                    </label>
+                </div>
+
+                <div class="form-field">
+                    <label for="point">사례 포인트</label>
+
+                    <div class="point-input">
+                        <input
+                            id="point"
+                            type="number"
+                            min="1"
+                            placeholder="2"
+                        >
+                        <span>P</span>
+                    </div>
+
+                    <p class="form-helper">
+                        현재 보유 포인트: {{ user.point }}P
+                    </p>
+
+                    <p class="form-helper">
+                        보유한 포인트 안에서 자유롭게 설정할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <aside class="upload-area">
+            <div class="form-field">
+                <label for="image">이미지 (선택)</label>
+
+                <label for="image" class="upload-box">
+                    <span>업로드</span>
+                </label>
+
+                <input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    hidden
+                >
+            </div>
+
+            <button
+                type="button"
+                class="submit-button"
+                onclick="HandleRegister()"
+            >
+                등록하기
+            </button>
+        </aside>
     </div>
 </div>
-<div class="upload_area col-5">
-    <label for="image" class="upload_box">이미지</label>
-    <input id="image" type="file" accept="image/*" hidden>
-    <button class="submit_button" onclick="HandleRegister()">등록하기</button>
-</div>
-
 {% endblock %}
 
 {% block scripts %}
 <script>
     function HandleRegister() {
-        let title = $("#title").val();
-        let description = $("#description").val();
-        let place = $("#place").val();
-        let period = $("#period").val();
-        let point = $("#point").val();
+        const title = $("#title").val();
+        const description = $("#description").val();
+        const place = $("#place").val();
+        const point = $("#point").val();
 
-        Posting(title, description, place, period, point)
+        const noLimit = $("#no-limit").is(":checked");
+        const deadlineDays = Number($("#deadline-days").val()) || 0;
+        const deadlineHours = Number($("#deadline-hours").val()) || 0;
+        const deadlineMinutes = Number($("#deadline-minutes").val()) || 0;
+
+        if (!noLimit && deadlineDays === 0 &&
+            deadlineHours === 0 && deadlineMinutes === 0) {
+            Swal.fire({
+                title: "등록 실패",
+                text: "기한을 1분 이상 입력해주세요.",
+                confirmButtonText: "확인"
+            });
+            return;
+        }
+
+        if (deadlineDays < 0) {
+            Swal.fire({
+                title: "등록 실패",
+                text: "일은 0 이상으로 입력해주세요.",
+                confirmButtonText: "확인"
+            });
+            return;
+        }
+
+        if (deadlineHours < 0 || deadlineHours > 23) {
+            Swal.fire({
+                title: "등록 실패",
+                text: "시간은 0부터 23 사이로 입력해주세요.",
+                confirmButtonText: "확인"
+            });
+            return;
+        }
+
+        if (deadlineMinutes < 0 || deadlineMinutes > 59) {
+            Swal.fire({
+                title: "등록 실패",
+                text: "분은 0부터 59 사이로 입력해주세요.",
+                confirmButtonText: "확인"
+            });
+            return;
+        }
+
+        const periodParts = [];
+
+        if (deadlineDays > 0) {
+            periodParts.push(`${deadlineDays}일`);
+        }
+
+        if (deadlineHours > 0) {
+            periodParts.push(`${deadlineHours}시간`);
+        }
+
+        if (deadlineMinutes > 0) {
+            periodParts.push(`${deadlineMinutes}분`);
+        }
+
+        const period = noLimit
+            ? "무기한"
+            : periodParts.join(" ");
+
+        const requestData = {
+            title_give: title,
+            description_give: description,
+            place_give: place,
+            point_give: point,
+
+            /* 현재 백엔드 호환용 */
+            period_give: period,
+
+            /* 다음 단계에서 deadline_at 계산에 사용할 값 */
+            deadline_days_give: deadlineDays,
+            deadline_hours_give: deadlineHours,
+            deadline_minutes_give: deadlineMinutes,
+            no_limit_give: noLimit
+        };
+
+        Posting(requestData);
     }
 
-    function Posting(title, description, place, period, point) {
+    function Posting(requestData) {
         $.ajax({
             type: "POST",
             url: "/errand",
-            data: {
-                title_give: title, description_give: description, place_give: place, period_give: period, point_give: point,
-            },
-            success: function (responese) {
-                if (responese["result"] == "success") {
+            data: requestData,
+            success: function (response) {
+                if (response["result"] === "success") {
                     Swal.fire({
-                        title: "포스팅 성공",
-                        confirmButtonText: "확인",
+                        title: "등록 성공",
+                        text: "심부름이 등록되었습니다.",
+                        confirmButtonText: "확인"
                     }).then(() => {
-                        window.location.reload();
+                        window.location.href = "/";
                     });
                 } else {
                     Swal.fire({
-                        titile: "포스팅실패",
+                        title: "등록 실패",
+                        text: response["message"],
                         confirmButtonText: "확인"
                     });
                 }
             }
-        })
+        });
     }
 
+    $("#no-limit").change(function () {
+        const checked = $(this).is(":checked");
+
+        $("#deadline-days, #deadline-hours, #deadline-minutes")
+            .prop("disabled", checked);
+    });
 </script>
 {% endblock %}
