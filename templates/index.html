@@ -7,8 +7,15 @@
     <a class="navbar-brand fw-bold" href="/">정글 도움 교환소</a>
     <input type="text" class="form-control search-input mx-3" placeholder="검색">
     <div class="nav-auth d-flex align-items-center gap-3 ms-auto">
+        {% if user %}
+        <span>보유 <strong>{{ user.point }}P</strong></span>
+        <a href="{{ url_for('errands.new_errand') }}">올리기</a>
+        <a href="{{ url_for('auth.mypage') }}">마이페이지</a>
+        <a href="{{ url_for('auth.logout') }}">로그아웃</a>
+        {% else %}
         <a href="{{ url_for('auth.login') }}">로그인</a>
         <a href="{{ url_for('auth.signup') }}">회원가입</a>
+        {% endif %}
     </div>
 </nav>
 {% endblock %}
@@ -42,6 +49,8 @@
             {% if errand.status == 'OPEN' %}수락 대기{% elif errand.status == 'CANCELED' %}취소{% else %}완료{% endif %}
         </p>
     </div>
+    {% else %}
+    <p class="empty-message">아직 수락 대기 중인 심부름이 없습니다.</p>
     {% endfor %}
 </div>
 
@@ -84,6 +93,13 @@
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
+    }
+
+    .empty-message {
+        grid-column: 1 / -1;
+        padding: 60px 0;
+        text-align: center;
+        color: #999;
     }
 
     .card-box {

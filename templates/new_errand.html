@@ -28,12 +28,21 @@
     }
 
     .brand-placeholder {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 160px;
         height: 40px;
         border: 1px solid #ddd;
         border-radius: 6px;
         background-color: #f3f3f3;
+        padding: 0 10px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-weight: 700;
+        font-size: 14px;
+        color: #222;
     }
 
     .header-search {
@@ -91,15 +100,6 @@
         gap: 10px;
         font-size: 14px;
         font-weight: 600;
-    }
-
-    .profile-image {
-        width: 42px;
-        height: 42px;
-        border: 1px solid #ddd;
-        border-radius: 50%;
-        background-color: #f3f3f3;
-        object-fit: cover;
     }
 
     /* 등록 본문 */
@@ -310,6 +310,13 @@
         background-color: #f1f1f1;
     }
 
+    .upload-preview {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+    }
+
     .submit-button {
         width: 100%;
         height: 56px;
@@ -337,10 +344,6 @@
 
         .brand-placeholder {
             width: 130px;
-        }
-
-        .header-profile span {
-            display: none;
         }
 
         .new-errand-layout {
@@ -403,7 +406,7 @@
         href="/"
         class="brand-placeholder"
         aria-label="홈으로 이동"
-    ></a>
+    >정글 도움 교환소</a>
 
     <input
         type="text"
@@ -424,14 +427,16 @@
             올리기
         </a>
 
-        <div class="header-profile">
-            <img
-                src="{{ url_for('static', filename='images/default_profile.png') }}"
-                alt="프로필 이미지"
-                class="profile-image"
-            >
-            <span>{{ user.nickname }}</span>
-        </div>
+        <a
+            href="{{ url_for('auth.mypage') }}"
+            class="header-profile"
+        >
+            마이페이지
+        </a>
+
+        <a href="{{ url_for('auth.logout') }}">
+            로그아웃
+        </a>
     </div>
 </nav>
 {% endblock %}
@@ -493,7 +498,7 @@
                                 value="0"
                                 aria-label="기한 시간"
                             >
-                            <span>시간</span>
+                            <span>시</span>
                         </div>
 
                         <div class="deadline-input">
@@ -544,7 +549,8 @@
                 <label for="image">이미지 (선택)</label>
 
                 <label for="image" class="upload-box">
-                    <span>업로드</span>
+                    <span id="image-placeholder-text">업로드</span>
+                    <img id="image-preview" class="upload-preview" style="display: none;">
                 </label>
 
                 <input
@@ -617,34 +623,11 @@
             return;
         }
 
-        const periodParts = [];
-
-        if (deadlineDays > 0) {
-            periodParts.push(`${deadlineDays}일`);
-        }
-
-        if (deadlineHours > 0) {
-            periodParts.push(`${deadlineHours}시간`);
-        }
-
-        if (deadlineMinutes > 0) {
-            periodParts.push(`${deadlineMinutes}분`);
-        }
-
-        const period = noLimit
-            ? "무기한"
-            : periodParts.join(" ");
-
         const requestData = {
             title_give: title,
             description_give: description,
             place_give: place,
             point_give: point,
-
-            /* 현재 백엔드 호환용 */
-            period_give: period,
-
-            /* 다음 단계에서 deadline_at 계산에 사용할 값 */
             deadline_days_give: deadlineDays,
             deadline_hours_give: deadlineHours,
             deadline_minutes_give: deadlineMinutes,
@@ -655,10 +638,24 @@
     }
 
     function Posting(requestData) {
+        const formData = new FormData();
+
+        Object.keys(requestData).forEach(function (key) {
+            formData.append(key, requestData[key]);
+        });
+
+        const imageFile = $("#image")[0].files[0];
+
+        if (imageFile) {
+            formData.append("image", imageFile);
+        }
+
         $.ajax({
             type: "POST",
             url: "/errand",
-            data: requestData,
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function (response) {
                 if (response["result"] === "success") {
                     Swal.fire({
@@ -684,6 +681,23 @@
 
         $("#deadline-days, #deadline-hours, #deadline-minutes")
             .prop("disabled", checked);
+    });
+
+    $("#image").change(function () {
+        const file = this.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            $("#image-preview").attr("src", e.target.result).show();
+            $("#image-placeholder-text").hide();
+        };
+
+        reader.readAsDataURL(file);
     });
 </script>
 {% endblock %}

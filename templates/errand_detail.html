@@ -17,12 +17,21 @@
     }
 
     .detail-brand {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 160px;
         height: 40px;
         border: 1px solid #ddd;
         border-radius: 6px;
         background-color: #f3f3f3;
+        padding: 0 10px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-weight: 700;
+        font-size: 14px;
+        color: #222;
     }
 
     .detail-search {
@@ -132,7 +141,7 @@
         href="/"
         class="detail-brand"
         aria-label="홈으로 이동"
-    ></a>
+    >정글 도움 교환소</a>
 
     <input
         type="text"
@@ -154,14 +163,16 @@
             올리기
         </a>
 
-        <div class="detail-profile">
-            <img
-                src="{{ url_for('static', filename='images/default_profile.png') }}"
-                alt="프로필 이미지"
-                class="detail-profile-image"
-            >
-            <span>{{ user.nickname }}</span>
-        </div>
+        <a
+            href="{{ url_for('auth.mypage') }}"
+            class="detail-profile"
+        >
+            마이페이지
+        </a>
+
+        <a href="{{ url_for('auth.logout') }}">
+            로그아웃
+        </a>
         {% else %}
         <a
             href="{{ url_for('auth.login') }}"
@@ -212,26 +223,12 @@
                     alt="심부름 이미지"
                 >
                 {% else %}
-                <svg
-                    class="position-absolute w-100 h-100"
-                    preserveAspectRatio="none"
-                    viewBox="0 0 100 100"
-                    style="stroke: #e0e0e0; stroke-width: 0.5;"
-                    aria-hidden="true"
+                <img
+                    src="{{ url_for('static', filename='images/default_errand.png') }}"
+                    class="w-100 h-100"
+                    style="object-fit: cover;"
+                    alt="기본 심부름 이미지"
                 >
-                    <line
-                        x1="0"
-                        y1="0"
-                        x2="100"
-                        y2="100"
-                    ></line>
-                    <line
-                        x1="100"
-                        y1="0"
-                        x2="0"
-                        y2="100"
-                    ></line>
-                </svg>
                 {% endif %}
             </div>
 
@@ -249,7 +246,7 @@
                 </span>
                 {% elif errand.status == 'WAITING_CONFIRM' %}
                 <span class="detail-status status-waiting">
-                    완료 확인 대기
+                    {% if is_owner %}완료 확인 필요{% else %}완료 확인 대기{% endif %}
                 </span>
                 {% elif errand.status == 'COMPLETED' %}
                 <span class="detail-status status-completed">
@@ -326,7 +323,7 @@
                     class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom"
                 >
                     <img
-                        src="{{ url_for('static', filename='images/default_profile.png') }}"
+                        src="{{ (requester.profile_image if requester else None) or url_for('static', filename='images/default_profile.png') }}"
                         alt="요청자 프로필 이미지"
                         class="detail-profile-image"
                         style="width: 48px; height: 48px;"
@@ -398,28 +395,27 @@
                 {% if is_owner %}
                     {% if errand.status == 'OPEN' %}
                     <div class="d-flex gap-2">
-                        <button
-                            type="button"
-                            class="btn btn-outline-dark w-50 py-2 pending-action"
-                            data-action-name="수정"
+                        <a
+                            href="{{ url_for('errands.edit_errand', errand_id=errand['_id']) }}"
+                            class="btn btn-outline-dark w-50 py-2"
                         >
                             수정
-                        </button>
+                        </a>
 
                         <button
                             type="button"
-                            class="btn btn-outline-danger w-50 py-2 pending-action"
-                            data-action-name="삭제"
+                            class="btn btn-outline-danger w-50 py-2"
+                            id="btn-cancel"
                         >
-                            삭제
+                            취소
                         </button>
                     </div>
 
                     {% elif errand.status == 'WAITING_CONFIRM' %}
                     <button
                         type="button"
-                        class="btn btn-dark w-100 py-2 pending-action"
-                        data-action-name="완료 확인"
+                        class="btn btn-dark w-100 py-2"
+                        id="btn-complete"
                     >
                         완료 확인
                     </button>
@@ -523,7 +519,7 @@
 
             Swal.fire({
                 title: "심부름을 수락할까요?",
-                text: "수락하면 요청자의 완료 확인을 기다리게 됩니다.",
+                text: "수락하면 심부름 완료 후 요청자의 확인이 필요합니다.",
                 icon: "question",
                 showCancelButton: true,
                 confirmButtonText: "수락하기",
@@ -540,6 +536,16 @@
                     url: `/api/errands/${errandId}/accept`,
 
                     success: function (response) {
+                        if (!response.success) {
+                            Swal.fire({
+                                title: "수락 실패",
+                                text: response["message"],
+                                icon: "error",
+                                confirmButtonText: "확인"
+                            });
+                            return;
+                        }
+
                         Swal.fire({
                             title: "수락 완료",
                             text: response["message"],
@@ -557,6 +563,130 @@
 
                         Swal.fire({
                             title: "수락 실패",
+                            text: message,
+                            icon: "error",
+                            confirmButtonText: "확인"
+                        });
+                    },
+
+                    complete: function () {
+                        button.prop("disabled", false);
+                    }
+                });
+            });
+        });
+
+        $("#btn-complete").click(function () {
+            const button = $(this);
+
+            Swal.fire({
+                title: "완료를 확정할까요?",
+                text: "완료를 확정하면 심부름 상태가 완료로 변경됩니다.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "완료 확정",
+                cancelButtonText: "취소"
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                button.prop("disabled", true);
+
+                $.ajax({
+                    type: "POST",
+                    url: `/api/errands/${errandId}/complete`,
+
+                    success: function (response) {
+                        if (!response.success) {
+                            Swal.fire({
+                                title: "완료 확정 실패",
+                                text: response["message"],
+                                icon: "error",
+                                confirmButtonText: "확인"
+                            });
+                            return;
+                        }
+
+                        Swal.fire({
+                            title: "완료 확정",
+                            text: response["message"],
+                            icon: "success",
+                            confirmButtonText: "확인"
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    },
+
+                    error: function (error) {
+                        const message =
+                            error.responseJSON?.message
+                            || "완료를 확정하는 중 오류가 발생했습니다.";
+
+                        Swal.fire({
+                            title: "완료 확정 실패",
+                            text: message,
+                            icon: "error",
+                            confirmButtonText: "확인"
+                        });
+                    },
+
+                    complete: function () {
+                        button.prop("disabled", false);
+                    }
+                });
+            });
+        });
+
+        $("#btn-cancel").click(function () {
+            const button = $(this);
+
+            Swal.fire({
+                title: "심부름을 취소할까요?",
+                text: "취소하면 이 심부름은 더 이상 수락할 수 없습니다.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "취소하기",
+                cancelButtonText: "닫기"
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                button.prop("disabled", true);
+
+                $.ajax({
+                    type: "POST",
+                    url: `/api/errands/${errandId}/cancel`,
+
+                    success: function (response) {
+                        if (!response.success) {
+                            Swal.fire({
+                                title: "취소 실패",
+                                text: response["message"],
+                                icon: "error",
+                                confirmButtonText: "확인"
+                            });
+                            return;
+                        }
+
+                        Swal.fire({
+                            title: "취소 완료",
+                            text: response["message"],
+                            icon: "success",
+                            confirmButtonText: "확인"
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    },
+
+                    error: function (error) {
+                        const message =
+                            error.responseJSON?.message
+                            || "취소하는 중 오류가 발생했습니다.";
+
+                        Swal.fire({
+                            title: "취소 실패",
                             text: message,
                             icon: "error",
                             confirmButtonText: "확인"

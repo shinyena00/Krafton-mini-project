@@ -15,11 +15,11 @@
                 alt="기본 프로필 이미지">
             <span class="camera-icon">📷</span>
         </label>
-        <input type="file" id="profile_image" accept="image/*" class="hidden-file-input">
+        <input type="file" id="profile_image" name="profile_image" form="signup-form" accept="image/*" class="hidden-file-input">
         <p class="signup">프로필 사진 등록</p>
     </div>
 
-    <form method="POST" action="/signup">
+    <form method="POST" action="/signup" enctype="multipart/form-data" id="signup-form">
         {% if error %}
         <p style="color: red;">{{ error }}</p>
         {% endif %}
@@ -153,6 +153,22 @@
 {% block scripts %}
 
 <script>
+    $("#profile_image").change(function () {
+        const file = this.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            $(".profile-img").attr("src", e.target.result);
+        };
+
+        reader.readAsDataURL(file);
+    });
+
     let nicknameChecked = false
 
     function nicknameCheck() {

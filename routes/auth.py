@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 import os
 from bson.objectid import ObjectId
 
-from db import users_collection
+from db import users_collection, errands_collection
+from image_utils import save_uploaded_image
 
 auth = Blueprint("auth", __name__)
 
@@ -96,12 +97,23 @@ def signup():
                error="이미 사용 중인 아이디 또는 닉네임입니다."
            )
 
+        profile_image, image_error = save_uploaded_image(
+            request.files.get("profile_image")
+        )
+
+        if image_error:
+            return render_template(
+                "signup.html",
+                error=image_error
+            )
+
         password_hash = generate_password_hash(password)
         doc = {
             'userid' : userid,
             'nickname' : nickname,
             'password' : password_hash,
             'point' : 10,
+            'profile_image': profile_image,
         }
         users_collection.insert_one(doc)
         return redirect(url_for("auth.login"))
@@ -146,9 +158,23 @@ def mypage():
         </script>
         """
 
+    requested_errands = list(
+        errands_collection.find({
+            "requester_id": user["_id"]
+        }).sort("created_at", -1)
+    )
+
+    accepted_errands = list(
+        errands_collection.find({
+            "worker_id": user["_id"]
+        }).sort("created_at", -1)
+    )
+
     return render_template(
         "mypage.html",
-        user=user
+        user=user,
+        requested_errands=requested_errands,
+        accepted_errands=accepted_errands
     )
 
 @auth.route("/logout")

@@ -1,31 +1,43 @@
-={% extends "base.html" %}
+{% extends "base.html" %}
 
-{% block title %}{{ errand.title }} - 정글 도움 교환소{% endblock %}
+{% block title %}심부름 수정 - 정글 도움 교환소{% endblock %}
 
 {% block head %}
 <style>
-    .detail-header {
+    .topbar { height: 70px; }
+    main { max-width: 1280px; padding: 54px 32px 90px; }
+
+    .edit-navbar {
         display: grid;
         grid-template-columns: 160px minmax(240px, 1fr) auto;
         align-items: center;
         gap: 28px;
         width: 100%;
-        min-height: 70px;
+        height: 70px;
         padding: 0 40px;
         border-bottom: 1px solid #e7e7e7;
         background-color: #fff;
     }
 
-    .detail-brand {
-        display: block;
+    .brand-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 160px;
         height: 40px;
         border: 1px solid #ddd;
         border-radius: 6px;
         background-color: #f3f3f3;
+        padding: 0 10px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-weight: 700;
+        font-size: 14px;
+        color: #222;
     }
 
-    .detail-search {
+    .header-search {
         width: 100%;
         height: 46px;
         padding: 0 18px;
@@ -35,15 +47,9 @@
         outline: none;
     }
 
-    .detail-header-actions {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        white-space: nowrap;
-    }
+    .header-actions { display: flex; align-items: center; gap: 16px; white-space: nowrap; }
 
-    .detail-point,
-    .detail-upload-button {
+    .point-badge, .header-upload-button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -55,589 +61,289 @@
         font-size: 14px;
     }
 
-    .detail-profile {
+    .point-badge strong { color: #222; }
+
+    .header-profile { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+
+    .page-title { margin-bottom: 46px; font-size: 26px; line-height: 1.3; }
+
+    .edit-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 2.2fr) minmax(300px, 0.95fr);
+        gap: 42px;
+        align-items: start;
+    }
+
+    .edit-form { display: flex; flex-direction: column; gap: 24px; }
+    .form-field { display: flex; flex-direction: column; }
+    .form-field > label:first-child { margin-bottom: 11px; color: #222; font-size: 15px; font-weight: 700; }
+
+    .form-field input[type="text"],
+    .form-field input[type="number"],
+    .form-field textarea {
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f6f6f6;
+        color: #222;
+        outline: none;
+    }
+
+    .form-field input[type="text"],
+    .form-field input[type="number"] { height: 54px; padding: 0 16px; }
+    .form-field textarea { min-height: 180px; padding: 17px 16px; line-height: 1.6; resize: vertical; }
+
+    .form-field input:focus,
+    .form-field textarea:focus { border-color: #999; background-color: #fff; }
+
+    .form-bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    .deadline-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .deadline-input { position: relative; }
+    .deadline-input input { padding-right: 34px !important; appearance: textfield; -moz-appearance: textfield; }
+    .deadline-input input::-webkit-outer-spin-button,
+    .deadline-input input::-webkit-inner-spin-button { margin: 0; -webkit-appearance: none; }
+    .deadline-input span { position: absolute; top: 50%; right: 13px; transform: translateY(-50%); color: #555; font-size: 13px; font-weight: 600; }
+    .deadline-input input:disabled { color: #aaa; background-color: #eee; }
+
+    .no-limit-option { display: inline-flex; align-items: center; align-self: flex-start; gap: 8px; margin-top: 10px; color: #444; font-size: 14px; cursor: pointer; }
+    .no-limit-option input { width: 18px; height: 18px; margin: 0; accent-color: #222; }
+
+    .point-input { position: relative; }
+    .point-input input { padding-right: 45px !important; appearance: textfield; -moz-appearance: textfield; }
+    .point-input input::-webkit-outer-spin-button,
+    .point-input input::-webkit-inner-spin-button { margin: 0; -webkit-appearance: none; }
+    .point-input span { position: absolute; top: 50%; right: 17px; transform: translateY(-50%); color: #222; font-weight: 700; }
+
+    .form-helper { margin: 9px 0 0; color: #888; font-size: 12px; }
+
+    .upload-area { display: flex; flex-direction: column; gap: 18px; }
+
+    .upload-box {
         display: flex;
         align-items: center;
-        gap: 10px;
-        font-size: 14px;
-        font-weight: 600;
+        justify-content: center;
+        width: 100%;
+        height: 280px;
+        border: 1px dashed #ccc;
+        border-radius: 9px;
+        background-color: #f7f7f7;
+        color: #999;
+        font-size: 15px;
+        cursor: pointer;
     }
+    .upload-box:hover { border-color: #888; background-color: #f1f1f1; }
+    .upload-preview { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
 
-    .detail-profile-image {
-        width: 40px;
-        height: 40px;
-        border: 1px solid #ddd;
-        border-radius: 50%;
-        background-color: #f3f3f3;
-        object-fit: cover;
-    }
-
-    .detail-status {
-        display: inline-flex;
-        align-items: center;
-        min-height: 30px;
-        padding: 5px 11px;
-        border-radius: 7px;
-        font-size: 12px;
+    .submit-button {
+        width: 100%;
+        height: 56px;
+        border: 0;
+        border-radius: 9px;
+        background-color: #303030;
+        color: #fff;
         font-weight: 700;
+        cursor: pointer;
+    }
+    .submit-button:hover { background-color: #111; }
+
+    @media (max-width: 900px) {
+        .edit-navbar { grid-template-columns: 130px minmax(180px, 1fr) auto; gap: 14px; padding: 0 20px; }
+        .brand-placeholder { width: 130px; }
+        .edit-layout { grid-template-columns: 1fr; }
+        .upload-area { max-width: 500px; }
     }
 
-    .status-open {
-        background-color: #f2f2f2;
-        color: #555;
-    }
-
-    .status-waiting {
-        background-color: #fff4db;
-        color: #a26800;
-    }
-
-    .status-completed {
-        background-color: #eaf7ec;
-        color: #2e8c44;
-    }
-
-    .status-canceled {
-        background-color: #fdecec;
-        color: #c54747;
-    }
-
-    @media (max-width: 768px) {
-        .detail-header {
-            display: flex;
-            gap: 12px;
-            padding: 0 18px;
-        }
-
-        .detail-brand {
-            width: 46px;
-            flex-shrink: 0;
-        }
-
-        .detail-search {
-            min-width: 0;
-        }
-
-        .detail-point,
-        .detail-profile {
-            display: none;
-        }
+    @media (max-width: 640px) {
+        main { padding: 36px 18px 70px; }
+        .edit-navbar { display: flex; }
+        .brand-placeholder { width: 44px; flex-shrink: 0; }
+        .header-search { min-width: 0; }
+        .point-badge, .header-profile { display: none; }
+        .header-upload-button { padding: 0 12px; }
+        .page-title { margin-bottom: 32px; font-size: 23px; }
+        .form-bottom-row { grid-template-columns: 1fr; }
+        .upload-box { height: 230px; }
     }
 </style>
 {% endblock %}
 
 {% block header %}
-<nav class="detail-header">
-    <a
-        href="/"
-        class="detail-brand"
-        aria-label="홈으로 이동"
-    ></a>
+<nav class="edit-navbar">
+    <a href="/" class="brand-placeholder" aria-label="홈으로 이동">정글 도움 교환소</a>
+    <input type="text" class="header-search" placeholder="검색" aria-label="검색">
 
-    <input
-        type="text"
-        class="detail-search"
-        placeholder="검색"
-        aria-label="검색"
-    >
-
-    <div class="detail-header-actions">
-        {% if user %}
-        <span class="detail-point">
-            보유&nbsp;<strong>{{ user.point }}P</strong>
-        </span>
-
-        <a
-            href="{{ url_for('errands.new_errand') }}"
-            class="detail-upload-button"
-        >
-            올리기
-        </a>
-
-        <div class="detail-profile">
-            <img
-                src="{{ url_for('static', filename='images/default_profile.png') }}"
-                alt="프로필 이미지"
-                class="detail-profile-image"
-            >
-            <span>{{ user.nickname }}</span>
-        </div>
-        {% else %}
-        <a
-            href="{{ url_for('auth.login') }}"
-            class="btn btn-sm btn-outline-secondary"
-        >
-            로그인
-        </a>
-
-        <a
-            href="{{ url_for('auth.signup') }}"
-            class="btn btn-sm btn-dark"
-        >
-            회원가입
-        </a>
-        {% endif %}
+    <div class="header-actions">
+        <span class="point-badge">보유 <strong>{{ user.point }}P</strong></span>
+        <a href="{{ url_for('errands.new_errand') }}" class="header-upload-button">올리기</a>
+        <a href="{{ url_for('auth.mypage') }}" class="header-profile">마이페이지</a>
+        <a href="{{ url_for('auth.logout') }}">로그아웃</a>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-{% set is_owner = user and user['_id'] == errand.requester_id %}
-{% set is_worker = user and errand.worker_id and user['_id'] == errand.worker_id %}
-
-<div
-    class="container-fluid px-4 px-lg-5 py-4"
-    style="max-width: 1350px;"
->
+<div>
     <div class="mb-4">
-        <a
-            href="/"
-            class="text-secondary text-decoration-none small fw-medium"
-        >
-            &larr; 목록으로
-        </a>
+        <a href="{{ url_for('errands.detail', errand_id=errand['_id']) }}" class="text-secondary text-decoration-none small fw-medium">&larr; 상세로 돌아가기</a>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-8 pe-lg-4">
-            <div
-                class="bg-light rounded-3 border d-flex align-items-center justify-content-center mb-4 position-relative overflow-hidden"
-                style="height: 380px;"
-            >
-                {% if errand.image %}
-                <img
-                    src="{{ errand.image }}"
-                    class="w-100 h-100"
-                    style="object-fit: cover;"
-                    alt="심부름 이미지"
-                >
-                {% else %}
-                <svg
-                    class="position-absolute w-100 h-100"
-                    preserveAspectRatio="none"
-                    viewBox="0 0 100 100"
-                    style="stroke: #e0e0e0; stroke-width: 0.5;"
-                    aria-hidden="true"
-                >
-                    <line
-                        x1="0"
-                        y1="0"
-                        x2="100"
-                        y2="100"
-                    ></line>
-                    <line
-                        x1="100"
-                        y1="0"
-                        x2="0"
-                        y2="100"
-                    ></line>
-                </svg>
-                {% endif %}
+    <h1 class="page-title">심부름 수정</h1>
+
+    <div class="edit-layout">
+        <section class="edit-form">
+            <div class="form-field">
+                <label for="title">제목</label>
+                <input id="title" type="text" value="{{ errand.title }}">
             </div>
 
-            <div class="d-flex align-items-start justify-content-between gap-3 mb-4">
-                <h1
-                    class="fw-bold text-dark mb-0"
-                    style="font-size: 24px;"
-                >
-                    {{ errand.title }}
-                </h1>
-
-                {% if errand.status == 'OPEN' %}
-                <span class="detail-status status-open">
-                    수락 대기
-                </span>
-                {% elif errand.status == 'WAITING_CONFIRM' %}
-                <span class="detail-status status-waiting">
-                    완료 확인 대기
-                </span>
-                {% elif errand.status == 'COMPLETED' %}
-                <span class="detail-status status-completed">
-                    완료
-                </span>
-                {% elif errand.status == 'CANCELED' %}
-                <span class="detail-status status-canceled">
-                    취소
-                </span>
-                {% endif %}
+            <div class="form-field">
+                <label for="description">상세 설명</label>
+                <textarea id="description">{{ errand.description }}</textarea>
             </div>
 
-            <div class="mb-4" style="font-size: 14px;">
-                <div class="row mb-2">
-                    <div
-                        class="col-3 text-secondary"
-                        style="max-width: 110px;"
-                    >
-                        장소
-                    </div>
-
-                    <div class="col-9 text-dark fw-medium">
-                        {{ errand.location }}
-                    </div>
-                </div>
-
-                <div class="row mb-2">
-                    <div
-                        class="col-3 text-secondary"
-                        style="max-width: 110px;"
-                    >
-                        기한
-                    </div>
-
-                    <div class="col-9 text-dark fw-medium">
-                        {{ errand.time }}
-                    </div>
-                </div>
-
-                <div class="row mb-2">
-                    <div
-                        class="col-3 text-secondary"
-                        style="max-width: 110px;"
-                    >
-                        사례 포인트
-                    </div>
-
-                    <div class="col-9 text-dark fw-bold">
-                        {{ errand.reward }}P
-                    </div>
-                </div>
+            <div class="form-field">
+                <label for="place">장소</label>
+                <input id="place" type="text" value="{{ errand.location }}">
             </div>
 
-            <hr class="my-4">
+            <div class="form-bottom-row">
+                <div class="form-field">
+                    <label>기한</label>
 
-            <div>
-                <div
-                    class="text-secondary fw-bold mb-2"
-                    style="font-size: 13px;"
-                >
-                    상세 설명
-                </div>
-
-                <p
-                    class="text-secondary lh-base mb-0"
-                    style="font-size: 14px; white-space: pre-wrap;"
-                >{{ errand.description | default('상세 설명이 없습니다.', true) }}</p>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div
-                class="card border rounded-3 p-4 shadow-none sticky-top"
-                style="top: 24px; border-color: #e5e5e5;"
-            >
-                <div
-                    class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom"
-                >
-                    <img
-                        src="{{ url_for('static', filename='images/default_profile.png') }}"
-                        alt="요청자 프로필 이미지"
-                        class="detail-profile-image"
-                        style="width: 48px; height: 48px;"
-                    >
-
-                    <div>
-                        <div
-                            class="fw-bold text-dark"
-                            style="font-size: 15px;"
-                        >
-                            {% if requester %}
-                                {{ requester.nickname }}
-                            {% else %}
-                                알 수 없는 사용자
-                            {% endif %}
+                    <div class="deadline-inputs">
+                        <div class="deadline-input">
+                            <input id="deadline-days" type="number" min="0" value="{{ deadline_days }}" {% if no_limit %}disabled{% endif %} aria-label="기한 일">
+                            <span>일</span>
                         </div>
 
-                        <span
-                            class="text-muted"
-                            style="font-size: 12px;"
-                        >
-                            요청자
-                        </span>
+                        <div class="deadline-input">
+                            <input id="deadline-hours" type="number" min="0" max="23" value="{{ deadline_hours }}" {% if no_limit %}disabled{% endif %} aria-label="기한 시간">
+                            <span>시</span>
+                        </div>
+
+                        <div class="deadline-input">
+                            <input id="deadline-minutes" type="number" min="0" max="59" value="{{ deadline_minutes }}" {% if no_limit %}disabled{% endif %} aria-label="기한 분">
+                            <span>분</span>
+                        </div>
                     </div>
+
+                    <label class="no-limit-option" for="no-limit">
+                        <input id="no-limit" type="checkbox" {% if no_limit %}checked{% endif %}>
+                        <span>무기한</span>
+                    </label>
                 </div>
 
-                <div class="mb-4" style="font-size: 13px;">
-                    <div class="d-flex justify-content-between gap-3 py-2">
-                        <span class="text-secondary">기한</span>
+                <div class="form-field">
+                    <label for="point">사례 포인트</label>
 
-                        <span class="text-dark fw-medium text-end">
-                            {{ errand.time }}
-                        </span>
+                    <div class="point-input">
+                        <input id="point" type="number" min="1" value="{{ errand.reward }}">
+                        <span>P</span>
                     </div>
 
-                    <div class="d-flex justify-content-between gap-3 py-2">
-                        <span class="text-secondary">
-                            사례 포인트
-                        </span>
-
-                        <span class="text-dark fw-bold">
-                            {{ errand.reward }}P
-                        </span>
-                    </div>
-
-                    <div class="d-flex justify-content-between gap-3 py-2">
-                        <span class="text-secondary">장소</span>
-
-                        <span
-                            class="text-dark fw-medium text-end"
-                            style="max-width: 65%;"
-                        >
-                            {{ errand.location }}
-                        </span>
-                    </div>
+                    <p class="form-helper">현재 보유 포인트: {{ user.point }}P</p>
                 </div>
-
-                <div
-                    class="p-3 mb-4 rounded-3"
-                    style="background-color: #f0f7ff; border: 1px solid #ddecfe;"
-                >
-                    <p
-                        class="mb-0"
-                        style="color: #2b7fff; font-size: 12px; line-height: 1.5;"
-                    >
-                        이 심부름을 완료하면
-                        <strong>{{ errand.reward }}P</strong>를
-                        받을 수 있습니다.
-                    </p>
-                </div>
-
-                {% if is_owner %}
-                    {% if errand.status == 'OPEN' %}
-                    <div class="d-flex gap-2">
-                        <button
-                            type="button"
-                            class="btn btn-outline-dark w-50 py-2 pending-action"
-                            data-action-name="수정"
-                        >
-                            수정
-                        </button>
-
-                        <button
-                            type="button"
-                            class="btn btn-outline-danger w-50 py-2 pending-action"
-                            data-action-name="삭제"
-                        >
-                            삭제
-                        </button>
-                    </div>
-
-                    {% elif errand.status == 'WAITING_CONFIRM' %}
-                    <button
-                        type="button"
-                        class="btn btn-dark w-100 py-2"
-                        id="btn-complete"
-                    >
-                        완료 확인
-                    </button>
-
-                    {% elif errand.status == 'COMPLETED' %}
-                    <button
-                        type="button"
-                        class="btn btn-success w-100 py-2"
-                        disabled
-                    >
-                        완료된 심부름
-                    </button>
-
-                    {% else %}
-                    <button
-                        type="button"
-                        class="btn btn-light border w-100 py-2 text-muted"
-                        disabled
-                    >
-                        취소된 심부름
-                    </button>
-                    {% endif %}
-
-                {% else %}
-                    {% if errand.status == 'OPEN' %}
-                    <button
-                        type="button"
-                        class="btn btn-dark w-100 py-2"
-                        id="btn-accept"
-                    >
-                        수락하기
-                    </button>
-
-                    {% elif errand.status == 'WAITING_CONFIRM' %}
-                        {% if is_worker %}
-                        <button
-                            type="button"
-                            class="btn btn-secondary w-100 py-2"
-                            disabled
-                        >
-                            요청자의 완료 확인 대기
-                        </button>
-                        {% else %}
-                        <button
-                            type="button"
-                            class="btn btn-secondary w-100 py-2"
-                            disabled
-                        >
-                            이미 수락된 심부름
-                        </button>
-                        {% endif %}
-
-                    {% elif errand.status == 'COMPLETED' %}
-                    <button
-                        type="button"
-                        class="btn btn-success w-100 py-2"
-                        disabled
-                    >
-                        완료된 심부름
-                    </button>
-
-                    {% else %}
-                    <button
-                        type="button"
-                        class="btn btn-light border w-100 py-2 text-muted"
-                        disabled
-                    >
-                        취소된 심부름
-                    </button>
-                    {% endif %}
-                {% endif %}
             </div>
-        </div>
+        </section>
+
+        <aside class="upload-area">
+            <div class="form-field">
+                <label for="image">이미지 (선택)</label>
+                <label for="image" class="upload-box">
+                    <span id="image-placeholder-text" {% if errand.image %}style="display: none;"{% endif %}>업로드</span>
+                    <img id="image-preview" class="upload-preview" src="{{ errand.image or '' }}" style="{% if not errand.image %}display: none;{% endif %}">
+                </label>
+                <input id="image" type="file" accept="image/*" hidden>
+            </div>
+
+            <button type="button" class="submit-button" onclick="HandleUpdate()">수정하기</button>
+        </aside>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    $(document).ready(function () {
-        const errandId = "{{ errand['_id'] }}";
+    const errandId = "{{ errand['_id'] }}";
 
-        const isLoggedIn =
-            "{{ 'true' if user else 'false' }}" === "true";
-
-        $("#btn-accept").click(function () {
-            if (!isLoggedIn) {
-                Swal.fire({
-                    title: "로그인이 필요합니다.",
-                    text: "로그인한 사용자만 심부름을 수락할 수 있습니다.",
-                    confirmButtonText: "로그인하기"
-                }).then(() => {
-                    window.location.href =
-                        "{{ url_for('auth.login') }}";
-                });
-
-                return;
-            }
-
-            const button = $(this);
-
-            Swal.fire({
-                title: "심부름을 수락할까요?",
-                text: "수락하면 요청자의 완료 확인을 기다리게 됩니다.",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: "수락하기",
-                cancelButtonText: "취소"
-            }).then((result) => {
-                if (!result.isConfirmed) {
-                    return;
-                }
-
-                button.prop("disabled", true);
-
-                $.ajax({
-                    type: "POST",
-                    url: `/api/errands/${errandId}/accept`,
-
-                    success: function (response) {
-                        Swal.fire({
-                            title: "수락 완료",
-                            text: response["message"],
-                            icon: "success",
-                            confirmButtonText: "확인"
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                    },
-
-                    error: function (error) {
-                        const message =
-                            error.responseJSON?.message
-                            || "심부름을 수락하는 중 오류가 발생했습니다.";
-
-                        Swal.fire({
-                            title: "수락 실패",
-                            text: message,
-                            icon: "error",
-                            confirmButtonText: "확인"
-                        });
-                    },
-
-                    complete: function () {
-                        button.prop("disabled", false);
-                    }
-                });
-            });
-        });
-
-        $("#btn-complete").click(function () {
-            const button = $(this);
-
-            Swal.fire({
-                title: "완료를 확정할까요?",
-                text: "완료를 확정하면 심부름 상태가 완료로 변경됩니다.",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: "완료 확정",
-                cancelButtonText: "취소"
-            }).then((result) => {
-                if (!result.isConfirmed) {
-                    return;
-                }
-
-                button.prop("disabled", true);
-
-                $.ajax({
-                    type: "POST",
-                    url: `/api/errands/${errandId}/complete`,
-
-                    success: function (response) {
-                        Swal.fire({
-                            title: "완료 확정",
-                            text: response["message"],
-                            icon: "success",
-                            confirmButtonText: "확인"
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                    },
-
-                    error: function (error) {
-                        const message =
-                            error.responseJSON?.message
-                            || "완료를 확정하는 중 오류가 발생했습니다.";
-
-                        Swal.fire({
-                            title: "완료 확정 실패",
-                            text: message,
-                            icon: "error",
-                            confirmButtonText: "확인"
-                        });
-                    },
-
-                    complete: function () {
-                        button.prop("disabled", false);
-                    }
-                });
-            });
-        });
-
-        $(".pending-action").click(function () {
-            const actionName =
-                $(this).data("action-name");
-
-            Swal.fire({
-                title: `${actionName} 기능 준비 중`,
-                text: "해당 API를 구현한 뒤 연결할 예정입니다.",
-                confirmButtonText: "확인"
-            });
-        });
+    $("#no-limit").change(function () {
+        const checked = $(this).is(":checked");
+        $("#deadline-days, #deadline-hours, #deadline-minutes").prop("disabled", checked);
     });
+
+    $("#image").change(function () {
+        const file = this.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            $("#image-preview").attr("src", e.target.result).show();
+            $("#image-placeholder-text").hide();
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    function HandleUpdate() {
+        const formData = new FormData();
+
+        formData.append("title", $("#title").val());
+        formData.append("description", $("#description").val());
+        formData.append("location", $("#place").val());
+        formData.append("reward", Number($("#point").val()));
+        formData.append("deadline_days", Number($("#deadline-days").val()) || 0);
+        formData.append("deadline_hours", Number($("#deadline-hours").val()) || 0);
+        formData.append("deadline_minutes", Number($("#deadline-minutes").val()) || 0);
+        formData.append("no_limit", $("#no-limit").is(":checked"));
+
+        const imageFile = $("#image")[0].files[0];
+
+        if (imageFile) {
+            formData.append("image", imageFile);
+        }
+
+        $.ajax({
+            type: "PUT",
+            url: `/api/errands/${errandId}`,
+            data: formData,
+            processData: false,
+            contentType: false,
+
+            success: function (response) {
+                if (!response.success) {
+                    Swal.fire({
+                        title: "수정 실패",
+                        text: response.message,
+                        confirmButtonText: "확인"
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: "수정 완료",
+                    text: response.message,
+                    icon: "success",
+                    confirmButtonText: "확인"
+                }).then(() => {
+                    window.location.href = `/errands/${errandId}`;
+                });
+            },
+
+            error: function (error) {
+                const message = error.responseJSON?.message || "수정하는 중 오류가 발생했습니다.";
+
+                Swal.fire({
+                    title: "수정 실패",
+                    text: message,
+                    confirmButtonText: "확인"
+                });
+            }
+        });
+    }
 </script>
 {% endblock %}
