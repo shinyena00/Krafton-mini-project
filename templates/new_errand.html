@@ -17,7 +17,7 @@
 
     .new-errand-navbar {
         display: grid;
-        grid-template-columns: 160px minmax(240px, 1fr) auto;
+        grid-template-columns: 160px 1fr;
         align-items: center;
         gap: 28px;
         width: 100%;
@@ -45,25 +45,11 @@
         color: #222;
     }
 
-    .header-search {
-        width: 100%;
-        height: 46px;
-        padding: 0 18px;
-        border: 1px solid #ddd;
-        border-radius: 9px;
-        background-color: #f5f5f5;
-        color: #222;
-        outline: none;
-    }
-
-    .header-search:focus {
-        border-color: #999;
-        background-color: #fff;
-    }
-
     .header-actions {
         display: flex;
         align-items: center;
+        justify-self: end;
+        margin-left: auto;
         gap: 16px;
         white-space: nowrap;
     }
@@ -337,7 +323,7 @@
 
     @media (max-width: 900px) {
         .new-errand-navbar {
-            grid-template-columns: 130px minmax(180px, 1fr) auto;
+            grid-template-columns: 130px 1fr;
             gap: 14px;
             padding: 0 20px;
         }
@@ -369,10 +355,6 @@
         .brand-placeholder {
             width: 44px;
             flex-shrink: 0;
-        }
-
-        .header-search {
-            min-width: 0;
         }
 
         .point-badge,
@@ -407,13 +389,6 @@
         class="brand-placeholder"
         aria-label="홈으로 이동"
     >정글 도움 교환소</a>
-
-    <input
-        type="text"
-        class="header-search"
-        placeholder="검색"
-        aria-label="검색"
-    >
 
     <div class="header-actions">
         <span class="point-badge">

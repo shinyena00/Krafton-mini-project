@@ -5,7 +5,6 @@
 {% block header %}
 <nav class="navbar px-4">
     <a class="navbar-brand fw-bold" href="/">정글 도움 교환소</a>
-    <input type="text" class="form-control search-input mx-3" placeholder="검색">
     <div class="nav-auth d-flex align-items-center gap-3 ms-auto">
         {% if user %}
         <span>보유 <strong>{{ user.point }}P</strong></span>
@@ -24,16 +23,6 @@
 
 <div class="topcontent">
     <h1 class="mb-3">최신 등록</h1>
-    <div class="dropdown">
-        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            정렬
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-            <li><button class="dropdown-item" type="button">최신순</button></li>
-            <li><button class="dropdown-item" type="button">포인트 높은순</button></li>
-            <li><button class="dropdown-item" type="button">마감 임박순</button></li>
-        </ul>
-    </div>
 </div>
 
 <div class="card-grid">
@@ -70,12 +59,6 @@
 
     nav.navbar .navbar-brand {
         flex-shrink: 0;
-    }
-
-    .search-input {
-        flex: 1 1 auto;
-        min-width: 0;
-        max-width: 480px;
     }
 
     .nav-auth {

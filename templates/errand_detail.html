@@ -6,7 +6,7 @@
 <style>
     .detail-header {
         display: grid;
-        grid-template-columns: 160px minmax(240px, 1fr) auto;
+        grid-template-columns: 160px 1fr;
         align-items: center;
         gap: 28px;
         width: 100%;
@@ -34,19 +34,11 @@
         color: #222;
     }
 
-    .detail-search {
-        width: 100%;
-        height: 46px;
-        padding: 0 18px;
-        border: 1px solid #ddd;
-        border-radius: 9px;
-        background-color: #f5f5f5;
-        outline: none;
-    }
-
     .detail-header-actions {
         display: flex;
         align-items: center;
+        justify-self: end;
+        margin-left: auto;
         gap: 12px;
         white-space: nowrap;
     }
@@ -123,10 +115,6 @@
             flex-shrink: 0;
         }
 
-        .detail-search {
-            min-width: 0;
-        }
-
         .detail-point,
         .detail-profile {
             display: none;
@@ -142,13 +130,6 @@
         class="detail-brand"
         aria-label="홈으로 이동"
     >정글 도움 교환소</a>
-
-    <input
-        type="text"
-        class="detail-search"
-        placeholder="검색"
-        aria-label="검색"
-    >
 
     <div class="detail-header-actions">
         {% if user %}
