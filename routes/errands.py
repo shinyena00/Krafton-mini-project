@@ -420,14 +420,16 @@ def edit_errand(errand_id):
     if not errand:
         return "존재하지 않는 심부름입니다."
 
-    if errand["requester_id"] != user["_id"]:
+    if errand.get("requester_id") != user["_id"]:
         return "수정 권한이 없습니다."
 
-    if errand["status"] != "OPEN":
+    if errand.get("status") != "OPEN":
         return "수락된 이후에는 수정할 수 없습니다."
 
-    no_limit = errand["deadline_at"] is None
-    parts = remaining_time_parts(errand["deadline_at"])
+    deadline_at = errand.get("deadline_at")
+
+    no_limit = deadline_at is None
+    parts = remaining_time_parts(deadline_at)
     deadline_days, deadline_hours, deadline_minutes = parts or (0, 0, 0)
 
     return render_template(

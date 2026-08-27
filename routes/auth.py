@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 import os
 from bson.objectid import ObjectId
+from bson.errors import InvalidId
 
 from db import users_collection, errands_collection
 from image_utils import save_uploaded_image
@@ -80,10 +81,16 @@ def check_id():
 @auth.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        userid = request.form["user_id"]
-        nickname = request.form["user_nickname"]
+        userid = request.form["user_id"].strip()
+        nickname = request.form["user_nickname"].strip()
         password = request.form["user_password"]
         password_confirm = request.form["user_password_confirm"]
+
+        if(not userid or not nickname or not password):
+            return render_template(
+                "signup.html",
+                error="모든 항목을 입력해주세요."
+            )
 
         if(password != password_confirm):
             return render_template(
@@ -144,6 +151,9 @@ def get_current_user():
         return None
 
     except jwt.InvalidTokenError:
+        return None
+
+    except InvalidId:
         return None
 
 @auth.route("/mypage")
