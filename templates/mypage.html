@@ -29,16 +29,16 @@
     <hr class="m-0">
 
     <div class="tab2">
-        <button type="button" class="active2">진행중</button>
-        <button type="button">미진행</button>
-        <button type="button">완료</button>
+        <button type="button" class="active2" data-filter="WAITING_CONFIRM">진행중</button>
+        <button type="button" data-filter="OPEN">미진행</button>
+        <button type="button" data-filter="DONE">완료</button>
     </div>
 
     <hr class="m-0">
 
     <div class="errand_card" id="requested-list">
         {% for errand in requested_errands %}
-        <div class="errand_item">
+        <div class="errand_item" data-status="{{ errand.status }}">
             <div class="errandcontent">
                 <div class="mb-2 mt-3 mystatus">
                     {% if errand.status == 'OPEN' %}수락 대기
@@ -57,11 +57,12 @@
         {% else %}
         <p class="text-muted py-3">등록한 심부름이 없습니다.</p>
         {% endfor %}
+        <p class="text-muted py-3 filter-empty-message" style="display: none;">해당 상태의 심부름이 없습니다.</p>
     </div>
 
     <div class="errand_card" id="accepted-list" style="display: none;">
         {% for errand in accepted_errands %}
-        <div class="errand_item">
+        <div class="errand_item" data-status="{{ errand.status }}">
             <div class="errandcontent">
                 <div class="mb-2 mt-3 mystatus">
                     {% if errand.status == 'OPEN' %}수락 대기
@@ -80,6 +81,7 @@
         {% else %}
         <p class="text-muted py-3">수락한 심부름이 없습니다.</p>
         {% endfor %}
+        <p class="text-muted py-3 filter-empty-message" style="display: none;">해당 상태의 심부름이 없습니다.</p>
     </div>
 
 </div>
@@ -185,6 +187,33 @@
 {% block scripts %}
 
 <script>
+    function applyStatusFilter() {
+        const filter = $(".tab2 button.active2").data("filter");
+
+        $(".errand_card").each(function () {
+            const items = $(this).find(".errand_item");
+            let visibleCount = 0;
+
+            items.each(function () {
+                const status = $(this).data("status");
+                const match = filter === "DONE"
+                    ? (status === "COMPLETED" || status === "CANCELED")
+                    : status === filter;
+
+                $(this).toggle(match);
+                $(this).next("hr").toggle(match);
+
+                if (match) {
+                    visibleCount += 1;
+                }
+            });
+
+            $(this).find(".filter-empty-message").toggle(
+                items.length > 0 && visibleCount === 0
+            );
+        });
+    }
+
     $(".tab1 button").click(function () {
         $(".tab1 button").removeClass("active");
         $(this).addClass("active");
@@ -192,7 +221,18 @@
         const target = $(this).data("target");
         $("#requested-list, #accepted-list").hide();
         $(`#${target}-list`).show();
+
+        applyStatusFilter();
     });
+
+    $(".tab2 button").click(function () {
+        $(".tab2 button").removeClass("active2");
+        $(this).addClass("active2");
+
+        applyStatusFilter();
+    });
+
+    applyStatusFilter();
 </script>
 
 {% endblock %}
