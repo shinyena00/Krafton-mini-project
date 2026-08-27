@@ -1,5 +1,3 @@
-# 심부름 CRUD 및 화면 조회(목록/등록/상세/수정)만 담당한다.
-# 상태 전이(수락/완료 확정/취소)는 routes/status.py에서 담당하며, 여기에 추가하지 않는다.
 
 from datetime import datetime, timedelta, timezone
 
@@ -19,7 +17,6 @@ def remaining_time_parts(deadline_at):
     if deadline_at is None:
         return None
 
-    # PyMongo에서 읽은 시간이 시간대 정보가 없으면 UTC로 처리
     if deadline_at.tzinfo is None:
         deadline_at = deadline_at.replace(
             tzinfo=timezone.utc
@@ -34,7 +31,7 @@ def remaining_time_parts(deadline_at):
     if remaining_seconds <= 0:
         return None
 
-    # 남은 초를 분 단위로 올림
+
     total_minutes = (
         remaining_seconds + 59
     ) // 60
@@ -77,7 +74,6 @@ def format_remaining_time(deadline_at):
 
 
 def not_expired_conditions():
-    # deadline_at이 없거나(레거시), None(무기한)이거나, 아직 지나지 않은 경우
     return [
         {"deadline_at": None},
         {"deadline_at": {"$exists": False}},
@@ -105,7 +101,6 @@ def set_display_time(errand):
             errand["deadline_at"]
         )
     else:
-        # 기존 테스트 데이터 호환용
         errand["time"] = errand.get(
             "time",
             "기한 미정"
