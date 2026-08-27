@@ -76,6 +76,29 @@ def format_remaining_time(deadline_at):
     return " ".join(labels) + "까지"
 
 
+def not_expired_conditions():
+    # deadline_at이 없거나(레거시), None(무기한)이거나, 아직 지나지 않은 경우
+    return [
+        {"deadline_at": None},
+        {"deadline_at": {"$exists": False}},
+        {"deadline_at": {"$gt": datetime.now(timezone.utc)}}
+    ]
+
+
+def is_expired(errand):
+    deadline_at = errand.get("deadline_at")
+
+    if deadline_at is None:
+        return False
+
+    if deadline_at.tzinfo is None:
+        deadline_at = deadline_at.replace(
+            tzinfo=timezone.utc
+        )
+
+    return deadline_at <= datetime.now(timezone.utc)
+
+
 def set_display_time(errand):
     if "deadline_at" in errand:
         errand["time"] = format_remaining_time(
@@ -97,7 +120,8 @@ def home():
 
     errand_list = list(
         errands_collection.find({
-            "status": "OPEN"
+            "status": "OPEN",
+            "$or": not_expired_conditions()
         }).sort(
             "created_at",
             -1
@@ -335,26 +359,6 @@ def post_errand():
     })
 
 
-@errands.route("/errand", methods=["GET"])
-def search_errand():
-    result = list(
-        errands_collection.find(
-            {},
-            {
-                "_id": 0,
-                "requester_id": 0,
-                "worker_id": 0,
-                "created_at": 0,
-                "deadline_at": 0
-            }
-        )
-    )
-
-    return jsonify({
-        "point": result
-    })
-
-
 @errands.route("/errands/<errand_id>")
 def detail(errand_id):
     try:
@@ -387,7 +391,8 @@ def detail(errand_id):
         "errand_detail.html",
         errand=errand,
         user=user,
-        requester=requester
+        requester=requester,
+        expired=is_expired(errand)
     )
 
 
